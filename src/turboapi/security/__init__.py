@@ -19,7 +19,20 @@ from .interfaces import (
     User,
 )
 from .decorators import RequireAuth, RequirePermission, RequireRole
+from .dependencies import (
+    get_current_user,
+    require_permission,
+    require_permissions,
+    require_role,
+    require_roles,
+)
 from .jwt import JWTAuthProvider, JWTTokenManager, PasswordHandler
+from .middleware import (
+    CORSSecurityMiddleware,
+    RateLimitMiddleware,
+    SecurityMiddleware,
+    setup_security_middleware,
+)
 
 __all__ = [
     # Interfaces
@@ -39,6 +52,17 @@ __all__ = [
     "RequireAuth",
     "RequireRole",
     "RequirePermission",
+    # Dependencies
+    "get_current_user",
+    "require_role",
+    "require_roles",
+    "require_permission",
+    "require_permissions",
+    # Middleware
+    "SecurityMiddleware",
+    "CORSSecurityMiddleware",
+    "RateLimitMiddleware",
+    "setup_security_middleware",
     # Exceptions
     "SecurityError",
     "InvalidTokenError",
