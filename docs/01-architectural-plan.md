@@ -27,7 +27,22 @@ Este documento resume la visión y arquitectura para un framework de desarrollo 
 - **CLI Robusto**: El framework proveerá una herramienta CLI (`Typer`) para que el usuario gestione el ciclo de vida de su proyecto (`framework new`, `run`) y de sus aplicaciones (`framework new-app`).
 - **Inicializador Web (Opcional)**: Interfaz web para generar la estructura de un nuevo proyecto.
 
-## 5. Capacidades de Observabilidad y Rendimiento
+## 5. Capacidades de Seguridad Empresarial
 
-- **Pila de Observabilidad**: El framework se integrará con `OpenTelemetry`.
-- **Interruptor "Cero Sobrecarga"**: El usuario podrá deshabilitar la instrumentación.
+- **Sistema de Autenticación Robusto**: El framework proporcionará autenticación JWT, OAuth2 y gestión de sesiones.
+- **Control de Acceso Basado en Roles (RBAC)**: Sistema completo de roles, permisos y autorización.
+- **Seguridad por Defecto**: Headers de seguridad, CORS, rate limiting y validación estricta.
+- **Auditoría y Compliance**: Logging de eventos de seguridad y preparación para regulaciones.
+
+## 6. Capacidades de Observabilidad y Rendimiento
+
+- **Observabilidad Completa**: Logging estructurado, métricas con Prometheus y trazabilidad distribuida con OpenTelemetry.
+- **Monitoreo en Tiempo Real**: Health checks, APM, alertas y dashboard web integrado.
+- **Optimización de Rendimiento**: Profiling, optimización de caché, pool de conexiones y compresión.
+- **Herramientas de Load Testing**: Benchmarks automatizados y monitoreo de rendimiento.
+
+## 7. Herramientas de Desarrollo Avanzadas
+
+- **Experiencia de Desarrollo Superior**: Hot reload, debugging visual, generación automática de documentación.
+- **Integración con Ecosistema**: Plugins para IDEs, integración Docker/Kubernetes, templates CI/CD.
+- **Productividad Maximizada**: Generadores de código, herramientas de migración y deployment automatizado.

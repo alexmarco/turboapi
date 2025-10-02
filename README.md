@@ -104,12 +104,28 @@ uv run framework --help
 
 ## Características
 
-- ✅ Inyección de dependencias
-- ✅ Configuración basada en `pyproject.toml`
-- ✅ Descubrimiento automático de componentes
-- ✅ Decoradores para controladores y endpoints
-- ✅ Capa de acceso a datos con SQLAlchemy
-- ✅ Migraciones con Alembic
-- ✅ Sistema de tareas en segundo plano
-- ✅ Sistema de caché avanzado (síncrono y asíncrono)
-- ✅ CLI para generación de proyectos y aplicaciones
+### ✅ Núcleo del Framework (Épicas 1-6.1 - Completadas)
+
+- ✅ **Inyección de dependencias** - Container DI robusto y flexible
+- ✅ **Configuración centralizada** - Basada en `pyproject.toml`
+- ✅ **Descubrimiento automático** - Escaneo de componentes inteligente
+- ✅ **Decoradores web** - Controladores y endpoints con FastAPI
+- ✅ **Capa de datos** - SQLAlchemy con migraciones Alembic
+- ✅ **Sistema de tareas** - Queue de tareas en segundo plano
+- ✅ **Sistema de caché completo** - Síncrono, asíncrono e híbrido
+- ✅ **CLI avanzado** - Generación de proyectos y aplicaciones
+
+### 🚀 Próximas Funcionalidades (Épicas 7-10 - Planificadas)
+
+- 🔐 **Seguridad empresarial** - JWT, OAuth2, RBAC, auditoría
+- 📊 **Observabilidad completa** - Logging, métricas, trazabilidad
+- ⚡ **Optimización de rendimiento** - Profiling, benchmarks, load testing
+- 🛠️ **DevTools avanzadas** - Hot reload, debugging, plugins IDE
+
+### 🎯 Visión del Framework
+
+TurboAPI está diseñado para ser una **solución empresarial completa** que combine:
+- **Productividad de desarrollo** similar a Django
+- **Performance y flexibilidad** de FastAPI  
+- **Arquitectura empresarial** inspirada en Spring Boot
+- **Experiencia de desarrollo moderna** con herramientas de clase mundial
