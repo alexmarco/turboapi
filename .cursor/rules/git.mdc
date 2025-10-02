@@ -1,0 +1,113 @@
+---
+alwaysApply: true
+---
+# 🛠️ Protocolo y Políticas de Trabajo con Git para Equipos de Desarrollo
+
+## 1. 🌱 Estrategia de Ramas (Branching Strategy)
+
+### 1.1. Estructura de Ramas Principal
+
+Se recomienda adoptar una variante del Gitflow con las siguientes ramas permanentes:
+
+- main/master: Contiene únicamente el código estable y listo para producción. Está protegida contra pushes directos.
+- develop: Rama de integración donde se unen las funcionalidades completadas para preparar el siguiente release. También está protegida contra pushes directos.
+
+### 1.2. Ramas de Desarrollo (Feature Branches)
+
+- Nomenclatura: Utilizar feature/descripcion-breve, fix/issue-123, o hotfix/urgencia-corta.
+- Características: Deben ser ramas de corta duración (idealmente menos de un día) para minimizar conflictos de fusión.
+- Creación desde develop: `git checkout -b feature/nueva-funcionalidad develop`
+
+## 2. 💻 Flujo de Trabajo Diario
+
+### 2.1. Comenzar a Trabajar
+
+- Sincronizar: Siempre comenzar actualizando la rama develop local:
+
+    ```bash
+    git checkout develop
+    git pull origin develop
+    ```
+
+  Esto evita conflictos al garantizar que trabajas con la versión más reciente del código.
+- Crear rama de feature: `git checkout -b feature/nombre-feature`
+
+### 2.2. Trabajar en Cambios
+
+- Verificar estado frecuentemente: Usar `git status` para monitorear cambios realizados, archivos modificados y la rama actual.
+
+- Realizar commits atómicos y significativos:
+  - Frecuencia: Realiza commits con frecuencia, cada uno representando una unidad lógica de cambio.
+  - Mensajes claros: Usar el formato convencional:
+
+    ```text
+    <tipo>(<alcance>): <asunto>
+
+    <cuerpo>
+
+    <pie>
+    ```
+
+    Ejemplo:
+
+    ```text
+    text
+    feat(payment): integrate with Stripe API
+
+    - Add Stripe SDK dependency
+    - Create payment intent service
+    - Handle webhook for payment confirmation
+
+    Refs: #123
+    ```
+
+- Plantilla de commit: Considerar configurar commit.template para estandarizar mensajes.
+
+### 2.3. Finalizar una Funcionalidad
+
+1. Subir la rama al repositorio remoto: git push origin feature/nombre-feature
+2. Crear un Pull Request (PR) o Merge Request (MR) hacia develop.
+3. Esperar la revisión de código por al menos un compañero.
+4. Realizar los ajustes solicitados en la revisión.
+5. El revisor aprueba y fusiona el PR/MR. La rama de feature se elimina tras la fusión.
+
+## 3. ✅ Estándares de Calidad de Código
+
+### 3.1. Revisiones de Código (Code Review)
+
+- Requisito obligatorio: Todo código debe ser revisado antes de integrarse en develop.
+- Objetivo: Mantener la calidad, compartir conocimiento y detectar problemas potenciales.
+- Responsabilidad: El revisor es tan responsable como el autor de la calidad del código integrado.
+
+### 3.2. Integración Continua (CI)
+
+- Build automático: Cada PR/MR debe disparar un pipeline de CI que ejecute al menos:
+- Linting y análisis estático de código.
+- Suite de pruebas unitarias.
+- Verificación de vulnerabilidades de seguridad conocidas.
+- Criterio de fusión: El pipeline debe pasar exitosamente antes de permitir la fusión.
+- Prioridad: Si la compilación se rompe o las pruebas fallan, el equipo debe priorizar solucionar el problema lo antes posible.
+
+## 4. 🚨 Prevención y Manejo de Conflictos
+
+- Cambios pequeños y frecuentes: Realizar cambios incrementales reduce drásticamente el riesgo de conflictos de fusión.
+- Actualizar frecuentemente: Si trabajas en una rama larga, fusiona (merge) los cambios de develop a tu rama regularmente para mantenerla actualizada.
+- Antes de fusionar: Siempre ejecuta git pull origin develop en tu rama de feature para resolver conflictos localmente antes de crear el PR/MR.
+
+## 5. 📋 Lista de Verificación (Checklist) para Pull Requests
+
+- Cada PR/MR debe cumplir con lo siguiente antes de su fusión:
+- Código compila sin errores.
+- Tests automatizados pasan correctamente.
+- Cobertura de código se mantiene o mejora.
+- Cumple con guías de estilo del proyecto (linter).
+- Documentación actualizada (si aplica).
+- Revisado y aprobado por al menos un compañero.
+- Conflictos de fusión resueltos (si existen).
+- La rama está actualizada con develop.
+
+## 6. 🗂️ Manejo del Repositorio
+
+- No incluir archivos binarios o generados: Evitar commits de archivos compilados, dependencias (node_modules, .jar) o archivos específicos del IDE. Utilizar .gitignore robusto.
+- Commits limpios: Antes de hacer commit, revisar qué se está incluyendo con `git diff --staged`.
+- Seguridad: Agregar un archivo SECURITY.md en la raíz del repositorio para proporcionar instrucciones sobre cómo reportar vulnerabilidades de seguridad.

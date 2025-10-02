@@ -1,0 +1,136 @@
+[project]
+name = "turboapi"
+version = "0.1.0"
+description = "Framework de alta productividad sobre FastAPI."
+authors = [
+    { name = "Alejandro Marco Ramos", email = "alejandro.marco.ramos@gmail.com" },
+]
+requires-python = ">=3.10"
+dependencies = [
+    "starlette",
+    "pydantic",
+    "structlog",
+    "tomli",
+    "fastapi",
+    "uvicorn",
+    "httpx>=0.28.1",
+    "sqlalchemy",
+    "alembic",
+    "typer",
+]
+
+[project.scripts]
+framework = "turboapi.cli.main:app"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+    "mypy",
+    "coverage",
+    "httpx",          # Para TestClient
+]
+
+[tool.ruff]
+# Longitud de línea máxima, compatible con Black.
+line-length = 100
+# Versión de Python a la que apuntar para la compatibilidad de las reglas.
+target-version = "py310"
+# Excluir archivos y directorios del linting
+exclude = [".venv", "build", "dist", "__pycache__"]
+
+[tool.ruff.lint]
+# Selección de reglas a activar. Es una selección opinada para un proyecto moderno.
+select = [
+    "E",   # Errores de pycodestyle.
+    "F",   # Errores de Pyflakes (código no usado, etc.).
+    "W",   # Warnings de pycodestyle.
+    "I",   # Reglas de isort para ordenar imports.
+    "UP",  # Reglas de pyupgrade para modernizar el código.
+    "B",   # Reglas de flake8-bugbear (posibles bugs y malas prácticas).
+    "C4",  # Reglas de flake8-comprehensions (simplificar comprensiones).
+    "SIM", # Reglas de flake8-simplify (simplificar código complejo).
+]
+
+# Ignorar reglas específicas si es necesario.
+ignore = []
+
+# Configuración específica para archivos de tests
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "F841",   # Variable asignada pero no usada (común en tests)
+    "SIM105", # Usar contextlib.suppress (no crítico en tests)
+    "SIM117", # Combinar with statements (no crítico en tests)
+    "B017",   # pytest.raises(Exception) (común en tests)
+]
+# Configuración específica para generadores de plantillas
+"src/turboapi/cli/templates/*" = [
+    "W293", # Línea en blanco con espacios (común en plantillas)
+    "E501", # Línea demasiado larga (común en plantillas)
+]
+
+[tool.ruff.lint.isort]
+# Combina imports del mismo módulo en una sola línea.
+force-single-line = true
+
+[tool.ruff.format]
+# Usar comillas dobles por defecto, como Black.
+quote-style = "double"
+
+[tool.pytest.ini_options]
+# Añade 'src' al PYTHONPATH para que los tests encuentren el paquete.
+# pythonpaths = ["src"]
+# Directorio donde se encuentran los tests.
+testpaths = ["tests"]
+# Modo de asyncio para pytest-asyncio. 'auto' es generalmente la mejor opción.
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(message)s"
+# Opciones adicionales para pytest.
+# -v: modo verbose.
+# --cov: activa el coverage y especifica el paquete a medir.
+# --cov-report: muestra las líneas que faltan por cubrir.
+# addopts = "-v --cov=src/turboapi --cov-report=term-missing"
+addopts = "-v"
+
+[tool.mypy]
+# Activa el modo estricto como base.
+strict = true
+# Versión de Python para la que se realiza el chequeo.
+python_version = "3.10"
+
+# No fallar si una librería de terceros no tiene typings.
+ignore_missing_imports = true
+# No seguir los imports de librerías sin typings.
+follow_imports = "silent"
+
+# Forzar a que todas las funciones y métodos tengan anotaciones de tipo.
+disallow_untyped_defs = true
+# Advertir si una función devuelve 'Any' de forma implícita.
+warn_return_any = true
+# Advertir sobre configuraciones no utilizadas en este fichero.
+warn_unused_configs = true
+
+# Excluir directorios del chequeo de tipos.
+exclude = ["\\.venv", "build", "dist", "tests"]
+
+# Comandos de desarrollo recomendados:
+# uv run ruff check . --fix    # Linting con fixes automáticos
+# uv run ruff format .          # Formateo de código
+# uv run mypy .                 # Verificación de tipos
+# uv run pytest                # Ejecutar pruebas
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.7",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "ruff>=0.13.2",
+]

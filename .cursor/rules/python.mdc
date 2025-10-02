@@ -1,0 +1,124 @@
+---
+alwaysApply: true
+---
+# Reglas de Codificación para el lenguage python
+
+Este documento define las directrices que debe seguir cualquier asistente de IA al leer o modificar el código de este proyecto.
+
+## 1. Pila Tecnológica y Herramientas
+
+- **Gestor de Paquetes y Entorno**: Usarás `uv` para cualquier operación relacionada con dependencias o el entorno virtual. El único fichero para gestionar dependencias es `pyproject.toml`. También tienes que comprobar si existe el entorno virtual (`.venv`) y que coincide con `pyproject.toml`.
+- **Calidad de Código**:
+  - **Linting y Formateo**: `Ruff` es la herramienta principal. Antes de finalizar cualquier cambio de código, ejecuta `uv run ruff format .` y `uv run ruff check . --fix`.
+  - **Tipado Estático**: `Mypy` es obligatorio. Todo el código nuevo debe tener tipos estrictos. Ejecuta `uv run mypy .` para verificar los cambios.
+- **Testing**: `pytest` es el framework de pruebas. Todas las nuevas funcionalidades deben seguir una metodología TDD (Test-Driven Development).
+
+## 2. Metodología TDD (Test-Driven Development)
+
+- **Ciclo de Desarrollo**: Sigue estrictamente el ciclo Rojo-Verde-Refactor.
+    1. **Rojo**: Escribe una prueba que falle *antes* de escribir el código de la funcionalidad. La prueba debe describir el comportamiento esperado.
+    2. **Verde**: Escribe la cantidad mínima de código necesaria para que la prueba pase.
+    3. **Refactor**: Mejora el código (elimina duplicación, mejora la claridad) asegurándote de que todas las pruebas sigan pasando.
+- **Ubicación de las Pruebas**: Las pruebas deben residir en el directorio `/tests`, replicando la estructura del directorio `/src`. Por ejemplo, una prueba para `src/turboapi/core/di.py` debería estar en `tests/core/test_di.py`.
+
+## 3. Estilo de Código y Convenciones
+
+- **Formato**: Tienes que seguir estrictamente el formato impuesto por `Ruff` (`ruff format`).
+- **Importaciones**: Usa importaciones absolutas siempre que sea posible. `Ruff` (`ruff check`) ordenará y agrupará las importaciones automáticamente.
+- **Tipado (`Typing`)**:
+  - Usa anotaciones de tipo modernas (e.g., `list[str]` en lugar de `List[str]`, `str | None` en lugar de `Optional[str]`, etcetera) siempre que sea posible (Python 3.10+).
+  - Todo el código de funciones y métodos debe tener tipos para los argumentos y el valor de retorno.
+  - Tienes que definir el tipado de los decoradores usando `ParamSpec` y `TypeVar` (para entrada y salida) siempre que estén soportados en la versión de `python` que se esté usando.
+- **Inyección de Dependencias**: Prefiere siempre la inyección por constructor. Esto hace que las dependencias sean explícitas y el código más fácil de probar.
+- Para el trabajo con rutas y ficheros
+
+## 4. Documentación y Comentarios
+
+- **Docstrings**:
+  - Escribe docstrings para todos los módulos, clases y funciones públicas, siguiendo el [estilo de numpy](https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy).
+  - Incluye una sección de ejemplos en funciones y métodos.
+  - Añade los docstrings de `NamedTuple` y `dataclass` debajo de la definición de la clase.
+- **Comentarios**:
+  - Añade comentarios solo para explicar el *porqué* de una decisión compleja, no el *qué* hace el código. El código debe de poder explicarse por si solo.
+
+## 5. Project Management with `uv`
+
+These rules define strict guidelines for managing Python dependencies in this project using the `uv` dependency manager.
+
+### Use `uv` exclusively
+
+- All Python dependencies **must be installed, synchronized, and locked** using `uv`.
+- Never use `pip`, `pip-tools`, or `poetry` directly for dependency management.
+- Create virtual environment, if not exists
+
+### Managing Dependencies
+
+Always use these commands:
+
+```bash
+# Add or upgrade dependencies
+uv add <package>
+
+# Remove dependencies
+uv remove <package>
+
+# Reinstall all dependencies from lock file
+uv sync
+```
+
+### Scripts
+
+```bash
+# Run script with proper dependencies
+uv run script.py
+```
+
+You can edit inline-metadata manually:
+
+```python
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "torch",
+#     "torchvision",
+#     "opencv-python",
+#     "numpy",
+#     "matplotlib",
+#     "Pillow",
+#     "timm",
+# ]
+# ///
+
+print("some python code")
+```
+
+Or using uv cli:
+
+```bash
+# Add or upgrade script dependencies
+uv add package-name --script script.py
+
+# Remove script dependencies
+uv remove package-name --script script.py
+
+# Reinstall all script dependencies from lock file
+uv sync --script script.py
+```
+
+### Running python code
+
+- Run a Python script with `uv run <script-name>.py`
+- Run Python tools like pytest, ruff or mypy with `uv run pytest` or `uv run ruff` or `uv run mypy`
+Debes tener en cuenta cuando lances comandos en el terminal, que los ejecutes usando python del entorno virtual.
+
+## 6. Construcción y progreso
+
+- Cada vez que comencemos una épica, crea una rama de `git` y pasate a ella. Usa un nombre descriptivo o el nómbre de la épica.
+-
+
+Si existe un fichero `roadmap` en la carpeta de `/docs`, cada vez que vayas concluyendo tareas del tienes que marcarlas como completadas. Eso significa que las pruebas pasan al 100%, si no es así no se marcará.
+
+Cada vez que concluyamos una tarea haz lo siguiente:
+
+1. Stage relevant files
+2. Create a commit with a descriptive message
