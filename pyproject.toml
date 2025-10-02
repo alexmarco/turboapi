@@ -9,7 +9,7 @@ requires-python = ">=3.10"
 dependencies = [
     "starlette",
     "pydantic",
-    "structlog",
+    "structlog", 
     "tomli",
     "fastapi",
     "uvicorn",
@@ -17,6 +17,8 @@ dependencies = [
     "sqlalchemy",
     "alembic",
     "typer",
+    "PyJWT[crypto]",
+    "passlib[bcrypt]",
 ]
 
 [project.scripts]
