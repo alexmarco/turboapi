@@ -1,0 +1,50 @@
+---
+alwaysApply: true
+---
+# Workflow and Change Management Protocol
+
+## 1. Protocolo de Trabajo y Gestión de Cambios
+
+Este documento establece el flujo de trabajo y la comunicación entre los equipos de Producto, Arquitectura Técnica y Desarrollo de Software para garantizar la alineación y la correcta gestión de la evolución del proyecto.
+
+## 2. Actores y Responsabilidades
+
+1. **Producto**: Define el **QUÉ** y el **POR QUÉ**. Responsable del PRD (Product Requirements Document).
+2. **Arquitectura Técnica (AT)**: Define el **CÓMO** a nivel macro. Responsable del DDT (Documento de Diseño Técnico), patrones y elección de tecnologías.
+3. **Arquitectura de Software / Desarrollo (AS/Dev)**: **IMPLEMENTA** el "cómo". Descompone el DDT en épicas/tareas y desarrolla el software.
+
+## Fase 1: Flujo de Inicio del Proyecto
+
+1. **Kick-off (Producto → AT)**: Producto presenta la **versión 1.0 del PRD** al equipo de Arquitectura Técnica. Este documento esterá en `docs/01-prd.md`.
+2. **Diseño Técnico (AT)**: El equipo de AT crea la **versión 1.0 del DDT**, que traduce los requisitos funcionales y no funcionales en decisiones de arquitectura, tecnologías y patrones. Este documento se almacena en un repositorio Git (`docs/02-technical-design.md`).
+3. **Descomposición (AT → AS/Dev)**: El equipo de AS/Dev recibe el DDT y lo descompone en **Épicas** y **Tareas**, asegurando la trazabilidad con los requisitos del PRD. Este documento está en `docs/03-roadmap.md`.
+
+## Fase 2: Protocolo de Gestión de Cambios
+
+La clave es evaluar el impacto de cada cambio para determinar el flujo a seguir.
+
+### A) Cambio Funcional (Nuevo Requisito o Caso de Uso)
+
+1. **Propuesta (Producto)**: Producto actualiza el PRD a una nueva versión menor (ej. `v1.1`) y notifica al equipo de AT. El cambio debe estar claramente documentado.
+2. **Análisis de Impacto (AT)**: El equipo de AT evalúa si el nuevo requisito puede ser implementado con la arquitectura actual.
+    * **Impacto Bajo**: Si no requiere cambios arquitectónicos, AT da su aprobación. El cambio pasa directamente a AS/Dev para su estimación y planificación.
+    * **Impacto Alto**: Si el requisito fuerza un cambio en la arquitectura, se trata como un "Cambio Arquitectónico".
+
+### B) Cambio Arquitectónico (Refactor, Nueva Tecnología, Deuda Técnica)
+
+1. **Propuesta (AT o AS/Dev)**: El proponente redacta un **ADR (Architecture Decision Record)**, un documento breve que justifica el cambio, sus alternativas, pros y contras. Se almacena en el repositorio Git (`/docs/adr`).
+2. **Revisión y Aprobación (Comité)**: Un comité formado por los líderes de AT y AS/Dev revisa el ADR. La decisión (aprobado, rechazado, pendiente) queda registrada. En este caso, me preguntarás a mí por la decisión.
+3. **Actualización (AT)**: Si se aprueba, el equipo de AT actualiza el DDT para que refleje la nueva realidad arquitectónica.
+4. **Implementación (AS/Dev)**: El trabajo se descompone en tareas técnicas y se prioriza en el backlog.
+
+## Fase 3: Gobernanza y Versionamiento
+
+* **Fuente de la Verdad**:
+  * **PRD**: Es la fuente de la verdad funcional. Vive dentro del repo de código.
+  * **DDT y ADRs**: Son la fuente de la verdad técnica. Viven en el repositorio Git junto al código para que evolucionen a la par.
+* **Versionamiento con Git**:
+  * **Documentos Técnicos**: Cada cambio significativo en el DDT o la adición de un ADR se realiza a través de un Pull Request para facilitar la revisión.
+  * **Software**: El código sigue el **Versionamiento Semántico (MAJOR.MINOR.PATCH)**.
+  * **Tags de Git**: Se crean `tags` para marcar las versiones del software. Se recomienda asociar un `release` de software con las versiones de los documentos que implementa (ej. "Release v2.1.0 implementa requisitos de PRD v1.4 y arquitectura de DDT v1.2").
+  * Cada vez que concluyamos una tarea aplica las reglas de `.cursor/rules/git.mdc`
+* **Sincronización**: Se establece una reunión de sincronización obligatoria entre los tres actores para revisar los cambios propuestos y alinear las prioridades. Cuando hacer la reunión lo decidiré yo.

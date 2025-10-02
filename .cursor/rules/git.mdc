@@ -111,3 +111,198 @@ Se recomienda adoptar una variante del Gitflow con las siguientes ramas permanen
 - No incluir archivos binarios o generados: Evitar commits de archivos compilados, dependencias (node_modules, .jar) o archivos específicos del IDE. Utilizar .gitignore robusto.
 - Commits limpios: Antes de hacer commit, revisar qué se está incluyendo con `git diff --staged`.
 - Seguridad: Agregar un archivo SECURITY.md en la raíz del repositorio para proporcionar instrucciones sobre cómo reportar vulnerabilidades de seguridad.
+
+## 7. 🔀 Política de Pull Requests
+
+### 7.1. Principios Fundamentales
+
+- Principio de Responsabilidad Única: Cada Pull Request debe tener un único propósito específico. Evita incluir correcciones de typos no relacionados o pequeñas soluciones de bugs en PRs de características nuevas.
+
+- Tamaño Reducido: Las PRs pequeñas y enfocadas son más fáciles y rápidas de revisar, dejan menos espacio para introducir bugs y proporcionan un historial más claro de cambios. Idealmente, mantén las PRs en menos de 200-400 líneas de código.
+
+- Contexto Completo: Proporciona descripciones detalladas que incluyan el propósito del PR, resumen de cambios y enlaces a issues relacionados.
+
+### 7.2. Creación de Pull Requests
+
+#### 7.2.1. Plantilla Estándar para Pull Requests
+
+```markdown
+
+## Descripción
+
+[Descripción clara del propósito de estos cambios]
+
+## Cambios Realizados
+
+- [Lista de cambios principales]
+- [Agrupar por conceptos o problemas resueltos]
+
+## Tipo de Cambio
+
+- [ ] Corrección de bug
+- [ ] Nueva característica
+- [ ] Cambio breaking
+- [ ] Refactorización
+- [ ] Documentación
+
+## Comprobaciones
+
+- [ ] He auto-revisado mi PR
+- [ ] El código compila/pasa tests
+- [ ] He añadido tests si corresponde
+- [ ] He actualizado la documentación
+
+## Capturas (si aplica)
+
+[Añadir capturas de pantalla para cambios de frontend]
+
+## Issues Relacionados
+
+Closes #[número], Fixes #[número]
+```
+
+#### 7.2.2. Prácticas Específicas
+
+- Títulos Descriptivos: Usa títulos claros que describan lo que hace el PR, no solo la clave del issue.
+- Revisión Propia: Revisa, compila y prueba tu propio PR antes de enviarlo.
+- PRs en Draft: Usa PRs en borrador para obtener feedback temprano antes de completar todos los cambios.
+- Comentarios Guía: Añade comentarios en líneas específicas para dirigir la atención del revisor a partes importantes.
+
+### 7.3. Proceso de Revisión
+
+#### 7.3.1. Para el Autor
+
+- Sé Proactivo: Considera organizar una reunión breve para PRs largos y explica los cambios.
+- Actitud Constructiva: Mantén un tono profesional en los comentarios. Los comentarios se centran en el código, no en las personas.
+- Retroalimentación: Si cambias algo importante después de la aprobación, notifica a los revisores anteriores para que revisen nuevamente.
+
+#### 7.3.2. Para el Revisor
+
+- Revisión Rápida: Responde a las solicitudes de review en un plazo máximo de un día hábil.
+- Feedback Específico: Evita comentarios vagos. Proporciona alternativas concretas cuando no estés de acuerdo.
+- Revisión Multidisciplinaria: Incluye expertos en diferentes áreas según el tipo de cambios (UX para frontend, seguridad para cambios críticos, etc.).
+
+### 7.4. Automatización y QA
+
+- Integración Continua: Configura pipelines automáticos que ejecuten tests y análisis estático en cada PR.
+- Análisis Estático: Usa herramientas de linting para mantener la coherencia del estilo de código.
+- Revisión de Seguridad: Incluye verificaciones de seguridad automatizadas para detectar dependencias vulnerables.
+
+## 8. 📄 Generación y Gestión de Changelogs
+
+### 8.1. ¿Qué es un Changelog?
+
+Un changelog es un archivo que contiene una lista cronológica de todos los cambios notables realizados en un proyecto, organizado normalmente por versión con la fecha, seguido de una lista de características añadidas, mejoradas y eliminadas.
+
+### 8.2. Enfoques para Generar Changelogs
+
+#### 8.2.1. Enfoque Manual (Recomendado)
+
+Mantén un archivo `CHANGELOG.md` siguiendo el formato de Keep a Changelog:
+
+```markdown
+
+# Changelog
+
+Todos los cambios notables en este proyecto serán documentados en este archivo.
+
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
+y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [No Liberado]
+
+### Añadido
+
+-
+
+### Cambiado
+
+-
+
+### Corregido
+
+-
+
+### Eliminado
+
+-
+
+## [1.1.1] - 2023-03-05
+
+### Añadido
+
+- Traducción al árabe (#444)
+- v1.1 traducción al francés
+```
+
+#### 8.2.2. Enfoque Automatizado
+
+- Método Simple (para proyectos pequeños):
+
+    ```bash
+
+    # Generar changelog básico desde commits
+
+    git log --pretty="- %s" > CHANGELOG.md
+
+    # Con formato mejorado
+
+    git log --pretty="- %s (%an, %ad)" --date=short > CHANGELOG.md
+    ```
+
+- Herramientas Especializadas:
+
+| Herramienta        | Lenguaje | Características                                    |
+| ------------------ | -------- | -------------------------------------------------- |
+| git-cliff          | Rust     | Altamente personalizable, commits convencionales   |
+| generate-changelog | Node.js  | Formato específico, requiere estructura de commits |
+| git-changelog      | Python   | Plantillas Jinja2, múltiples convenciones          |
+
+### 8.3. Convención de Commits para Changelogs Automatizados
+
+Para aprovechar las herramientas automatizadas, implementa una convención de commits:
+
+```text
+<tipo>(<ámbito>): <descripción> [flags]
+
+Ejemplos:
+feat(auth): add OAuth2 integration
+fix(api): resolve memory leak in request handler
+docs(readme): update installation instructions
+breaking(db): remove deprecated methods
+```
+
+Los tipos comúnmente aceptados incluyen: feat, fix, docs, style, refactor, test, chore.
+
+### 8.4. Flujo de Trabajo Integrado
+
+- Pre-commit: Los desarrolladores siguen la convención establecida
+- Pre-release: Ejecutar herramienta de generación de changelog
+- Revisión: Revisar y ajustar el changelog generado automáticamente
+- Commit: Incluir changelog actualizado en el tag de release
+
+## 9. 🤝 Integración con CI/CD y Protocolo de Equipo
+
+### 9.1 Configuración para GitHub Actions
+
+```yaml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+      - run: uv sync --frozen
+      - run: uv run pytest
+      
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v1
+      - run: uv sync --frozen
+      - run: uv run ruff check . --fix
+      - run: uv run flake8 .
+```
