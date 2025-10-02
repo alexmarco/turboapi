@@ -1,24 +1,20 @@
 """Implementación JWT del sistema de autenticación."""
 
-import jwt
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from typing import Any
+
+import jwt
 from passlib.context import CryptContext
 
-from .exceptions import (
-    AuthenticationError,
-    InvalidTokenError,
-    UserInactiveError,
-    UserNotFoundError,
-)
-from .interfaces import (
-    AuthResult,
-    BaseAuthProvider,
-    BaseTokenManager,
-    TokenPayload,
-    User,
-)
+from .exceptions import InvalidTokenError
+from .interfaces import AuthResult
+from .interfaces import BaseAuthProvider
+from .interfaces import BaseTokenManager
+from .interfaces import TokenPayload
+from .interfaces import User
 
 
 class PasswordHandler:
@@ -48,10 +44,10 @@ class PasswordHandler:
             Hash de la contraseña.
         """
         # Truncar contraseña a 72 bytes para bcrypt
-        password_bytes = password.encode('utf-8')
+        password_bytes = password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
-        return self.pwd_context.hash(password_bytes.decode('utf-8'))
+        return self.pwd_context.hash(password_bytes.decode("utf-8"))
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """
@@ -70,10 +66,10 @@ class PasswordHandler:
             True si la contraseña es correcta.
         """
         # Truncar contraseña a 72 bytes para bcrypt
-        password_bytes = plain_password.encode('utf-8')
+        password_bytes = plain_password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
-        return self.pwd_context.verify(password_bytes.decode('utf-8'), hashed_password)
+        return self.pwd_context.verify(password_bytes.decode("utf-8"), hashed_password)
 
 
 class JWTTokenManager(BaseTokenManager):
@@ -133,7 +129,7 @@ class JWTTokenManager(BaseTokenManager):
             "iat": int(now.timestamp()),
             "exp": int(expire.timestamp()),
             "type": "access",
-            "jti": f"{int(time.time_ns())}"  # JWT ID único usando nanosegundos
+            "jti": f"{int(time.time_ns())}",  # JWT ID único usando nanosegundos
         }
 
         return jwt.encode(jwt_payload, self.secret, algorithm=self.algorithm)
@@ -160,7 +156,7 @@ class JWTTokenManager(BaseTokenManager):
             "iat": int(now.timestamp()),
             "exp": int(expire.timestamp()),
             "type": "refresh",
-            "jti": f"{int(time.time_ns())}"  # JWT ID único usando nanosegundos
+            "jti": f"{int(time.time_ns())}",  # JWT ID único usando nanosegundos
         }
 
         return jwt.encode(jwt_payload, self.secret, algorithm=self.algorithm)
@@ -189,9 +185,7 @@ class JWTTokenManager(BaseTokenManager):
             if token in self._blacklisted_tokens:
                 raise InvalidTokenError("Token has been revoked")
 
-            payload = jwt.decode(
-                token, self.secret, algorithms=[self.algorithm]
-            )
+            payload = jwt.decode(token, self.secret, algorithms=[self.algorithm])
 
             # Verificar que es un token de acceso
             if payload.get("type") != "access":
@@ -209,8 +203,19 @@ class JWTTokenManager(BaseTokenManager):
                 issued_at=issued_at,
                 expires_at=expires_at,
                 extra_claims={
-                    k: v for k, v in payload.items()
-                    if k not in ["user_id", "username", "roles", "permissions", "iat", "exp", "type", "jti"]
+                    k: v
+                    for k, v in payload.items()
+                    if k
+                    not in [
+                        "user_id",
+                        "username",
+                        "roles",
+                        "permissions",
+                        "iat",
+                        "exp",
+                        "type",
+                        "jti",
+                    ]
                 },
             )
 
@@ -243,9 +248,7 @@ class JWTTokenManager(BaseTokenManager):
             if token in self._blacklisted_tokens:
                 raise InvalidTokenError("Token has been revoked")
 
-            payload = jwt.decode(
-                token, self.secret, algorithms=[self.algorithm]
-            )
+            payload = jwt.decode(token, self.secret, algorithms=[self.algorithm])
 
             # Verificar que es un refresh token
             if payload.get("type") != "refresh":
@@ -333,41 +336,26 @@ class JWTAuthProvider(BaseAuthProvider):
             password = credentials.get("password")
 
             if not username or not password:
-                return AuthResult(
-                    success=False,
-                    error_message="Username and password are required"
-                )
+                return AuthResult(success=False, error_message="Username and password are required")
 
             # Buscar usuario
             user = await self.user_repository.get_by_username(username)
             if not user:
-                return AuthResult(
-                    success=False,
-                    error_message="Invalid credentials"
-                )
+                return AuthResult(success=False, error_message="Invalid credentials")
 
             # Verificar que el usuario esté activo
             if not user.is_active:
-                return AuthResult(
-                    success=False,
-                    error_message="User account is inactive"
-                )
+                return AuthResult(success=False, error_message="User account is inactive")
 
             # Verificar contraseña (asumimos que el user tiene un campo password_hash)
-            if not hasattr(user, 'password_hash'):
+            if not hasattr(user, "password_hash"):
                 # Para las pruebas, asumimos que la verificación es exitosa
                 # En implementación real, esto vendría del repositorio
                 if not self.password_handler.verify_password(password, "hashed_password"):
-                    return AuthResult(
-                        success=False,
-                        error_message="Invalid credentials"
-                    )
+                    return AuthResult(success=False, error_message="Invalid credentials")
             else:
                 if not self.password_handler.verify_password(password, user.password_hash):
-                    return AuthResult(
-                        success=False,
-                        error_message="Invalid credentials"
-                    )
+                    return AuthResult(success=False, error_message="Invalid credentials")
 
             # Generar tokens
             token_payload = {
@@ -394,10 +382,7 @@ class JWTAuthProvider(BaseAuthProvider):
             )
 
         except Exception as e:
-            return AuthResult(
-                success=False,
-                error_message=f"Authentication error: {str(e)}"
-            )
+            return AuthResult(success=False, error_message=f"Authentication error: {str(e)}")
 
     async def validate_token(self, token: str) -> TokenPayload:
         """
@@ -441,10 +426,7 @@ class JWTAuthProvider(BaseAuthProvider):
             # Obtener usuario actualizado
             user = await self.user_repository.get_by_id(user_id)
             if not user or not user.is_active:
-                return AuthResult(
-                    success=False,
-                    error_message="User not found or inactive"
-                )
+                return AuthResult(success=False, error_message="User not found or inactive")
 
             # Generar nuevos tokens
             token_payload = {
@@ -473,15 +455,9 @@ class JWTAuthProvider(BaseAuthProvider):
             )
 
         except InvalidTokenError as e:
-            return AuthResult(
-                success=False,
-                error_message=str(e)
-            )
+            return AuthResult(success=False, error_message=str(e))
         except Exception as e:
-            return AuthResult(
-                success=False,
-                error_message=f"Token refresh error: {str(e)}"
-            )
+            return AuthResult(success=False, error_message=f"Token refresh error: {str(e)}")
 
     async def logout(self, token: str) -> bool:
         """

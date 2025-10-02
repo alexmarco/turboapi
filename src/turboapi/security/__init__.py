@@ -18,6 +18,7 @@ from .interfaces import (
     TokenPayload,
     User,
 )
+from .decorators import RequireAuth, RequirePermission, RequireRole
 from .jwt import JWTAuthProvider, JWTTokenManager, PasswordHandler
 
 __all__ = [
@@ -34,6 +35,10 @@ __all__ = [
     "JWTAuthProvider",
     "JWTTokenManager",
     "PasswordHandler",
+    # Decorators
+    "RequireAuth",
+    "RequireRole",
+    "RequirePermission",
     # Exceptions
     "SecurityError",
     "InvalidTokenError",
