@@ -139,6 +139,7 @@ El framework implementa un sistema de seguridad robusto que cumple con estándar
 #### Componentes de Seguridad
 
 **1. Interfaces Base (`src/turboapi/security/interfaces.py`)**
+
 ```python
 class BaseAuthProvider(ABC):
     """Interface para proveedores de autenticación."""
@@ -161,16 +162,19 @@ class BaseRBACManager(ABC):
 ```
 
 **2. Gestión de Autenticación (`src/turboapi/security/auth.py`)**
+
 - **JWTAuthProvider**: Implementación JWT con refresh tokens
 - **OAuth2Provider**: Integración con proveedores externos (Google, GitHub, etc.)
 - **SessionManager**: Gestión de sesiones seguras con almacenamiento configurable
 
 **3. Control de Acceso (`src/turboapi/security/rbac.py`)**
+
 - **RBACManager**: Sistema completo de roles, permisos y recursos
 - **PermissionRegistry**: Registro automático de permisos desde decoradores
 - **RoleHierarchy**: Soporte para jerarquías de roles
 
 **4. Middleware de Seguridad (`src/turboapi/security/middleware.py`)**
+
 - **AuthenticationMiddleware**: Verificación automática de tokens
 - **SecurityHeadersMiddleware**: Headers de seguridad automáticos
 - **RateLimitMiddleware**: Rate limiting configurable
@@ -225,11 +229,13 @@ github = {client_id = "${GITHUB_CLIENT_ID}", client_secret = "${GITHUB_CLIENT_SE
 #### Auditoría y Compliance
 
 **1. Logging de Seguridad (`src/turboapi/security/audit.py`)**
+
 - **SecurityLogger**: Logging estructurado de eventos de seguridad
 - **AuditTrail**: Trazabilidad completa de acciones de usuarios
 - **ComplianceReporter**: Reportes para GDPR, CCPA
 
 **2. Validación y Sanitización**
+
 - **InputValidator**: Validación estricta de inputs con Pydantic
 - **XSSProtection**: Protección automática contra XSS
 - **SQLInjectionProtection**: Protección contra inyección SQL
@@ -237,6 +243,7 @@ github = {client_id = "${GITHUB_CLIENT_ID}", client_secret = "${GITHUB_CLIENT_SE
 #### Casos de Uso de Seguridad
 
 **Caso de Uso 1: Autenticación JWT**
+
 ```python
 # 1. Login endpoint
 @Post("/auth/login")
@@ -256,6 +263,7 @@ async def get_profile(current_user: User) -> UserProfile:
 ```
 
 **Caso de Uso 2: Control de Acceso RBAC**
+
 ```python
 # Definición de roles
 @dataclass
@@ -283,6 +291,7 @@ El framework integra capacidades completas de observabilidad siguiendo estándar
 #### Stack de Observabilidad
 
 **1. Logging Estructurado (`src/turboapi/observability/logging.py`)**
+
 ```python
 class StructuredLogger:
     """Logger estructurado con contexto automático."""
@@ -295,11 +304,13 @@ class StructuredLogger:
 ```
 
 **2. Métricas y Monitoreo (`src/turboapi/observability/metrics.py`)**
+
 - **PrometheusCollector**: Métricas compatibles con Prometheus
 - **MetricsRegistry**: Registro automático de métricas de aplicación
 - **CustomMetrics**: API para métricas personalizadas del usuario
 
 **3. Trazabilidad Distribuida (`src/turboapi/observability/tracing.py`)**
+
 - **OpenTelemetryIntegration**: Integración completa con OpenTelemetry
 - **TraceManager**: Gestión automática de traces y spans
 - **ContextPropagation**: Propagación de contexto entre servicios
@@ -307,6 +318,7 @@ class StructuredLogger:
 #### Health Checks y Diagnósticos
 
 **1. Health Check System (`src/turboapi/observability/health.py`)**
+
 ```python
 @HealthCheck("database")
 async def check_database() -> HealthStatus:
@@ -323,6 +335,7 @@ async def check_cache() -> HealthStatus:
 ```
 
 **2. Métricas Automáticas**
+
 - Request/Response time
 - Error rates por endpoint
 - Cache hit/miss ratios
@@ -356,16 +369,19 @@ health_checks_interval = 30
 #### Integración con Herramientas Externas
 
 **1. Prometheus + Grafana**
+
 - Dashboards predefinidos para métricas del framework
 - Alertas automáticas para errores críticos
 - Visualización de performance trends
 
 **2. ELK Stack / OpenSearch**
+
 - Configuración automática para logging centralizado
 - Índices optimizados para búsquedas de logs
 - Dashboards de Kibana predefinidos
 
 **3. APM Tools**
+
 - New Relic integration
 - DataDog integration
 - Elastic APM integration
@@ -381,12 +397,14 @@ El framework proporciona herramientas avanzadas que maximizan la productividad d
 #### Hot Reload y Desarrollo
 
 **1. Smart Hot Reload (`src/turboapi/devtools/reload.py`)**
+
 - Detección inteligente de cambios en código
 - Reload selectivo por módulos afectados
 - Preservación de estado durante reload
 - Integración con debugger
 
 **2. Development Server (`src/turboapi/devtools/server.py`)**
+
 ```python
 # Comando: framework dev
 # Características:
@@ -399,12 +417,14 @@ El framework proporciona herramientas avanzadas que maximizan la productividad d
 #### Generación Automática de Documentación
 
 **1. API Documentation (`src/turboapi/devtools/docs.py`)**
+
 - Generación automática de OpenAPI/Swagger
 - Documentación interactiva con FastAPI
 - Ejemplos automáticos desde tests
 - Versionado de API documentation
 
 **2. Code Documentation**
+
 - Extracción automática de docstrings
 - Generación de documentación de arquitectura
 - Diagramas automáticos de dependencias
@@ -412,6 +432,7 @@ El framework proporciona herramientas avanzadas que maximizan la productividad d
 #### Integración con Ecosistema
 
 **1. Docker Integration (`src/turboapi/devtools/docker.py`)**
+
 ```dockerfile
 # Dockerfile generado automáticamente
 FROM python:3.11-slim
@@ -422,11 +443,13 @@ CMD ["framework", "run", "--host", "0.0.0.0"]
 ```
 
 **2. Kubernetes Templates**
+
 - Manifests automáticos para deployment
 - ConfigMaps para configuración
 - Services y Ingress predefinidos
 
 **3. CI/CD Templates**
+
 ```yaml
 # .github/workflows/turboapi.yml (generado)
 name: TurboAPI CI/CD
@@ -446,16 +469,19 @@ jobs:
 #### Herramientas de Desarrollo
 
 **1. Debug Tools**
+
 - Integration con VS Code debugger
 - PyCharm plugin development
 - Interactive debugging console
 
 **2. Testing Utilities**
+
 - Test fixtures automáticos
 - Mock generators para servicios
 - Performance testing helpers
 
 **3. Migration Tools**
+
 - Framework version migration scripts
 - Automated refactoring tools
 - Deprecation warnings system
@@ -467,6 +493,7 @@ jobs:
 ### ✅ Funcionalidades Completadas (Épicas 1-6.1)
 
 **Núcleo del Framework:**
+
 - ✅ **Sistema de DI**: Container robusto con inyección automática
 - ✅ **Configuración**: Gestión centralizada via `pyproject.toml`
 - ✅ **Descubrimiento**: Escaneo automático de componentes
@@ -485,7 +512,9 @@ jobs:
 ### 🚀 Próximas Épicas de Optimización
 
 **Epic 9: Performance Optimization**
+
 - ProfilerManager, CacheOptimizer, ConnectionPool, LoadTester
 
-**Epic 10: Advanced DevTools** 
+**Epic 10: Advanced DevTools**
+
 - IDEPlugins, DeploymentTools, MigrationTools, TestingFramework
