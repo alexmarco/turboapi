@@ -16,7 +16,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 @dataclass
 class TracingConfig:
-    """Configuración para el sistema de trazabilidad distribuida."""
+    """Configuration for the distributed tracing system."""
 
     enable_tracing: bool = True
     enable_jaeger: bool = True
@@ -99,7 +99,7 @@ class OpenTelemetryTracer:
         if not self.config.enable_tracing:
             return
 
-        # Crear resource con información del servicio
+        # Create resource with service information
         resource = Resource.create(
             {
                 "service.name": self.config.service_name,
@@ -132,7 +132,7 @@ class OpenTelemetryTracer:
         self._initialized = True
 
     def _ensure_initialized(self) -> None:
-        """Asegura que el trazador esté inicializado."""
+        """Ensures the tracer is initialized."""
         if not self._initialized:
             self.initialize()
 
@@ -179,7 +179,7 @@ class OpenTelemetryTracer:
         >>> tracer = OpenTelemetryTracer(TracingConfig())
         >>> tracer.initialize()
         >>> span = tracer.start_span("database_query", {"table": "users"})
-        >>> # ... hacer operación ...
+        >>> # ... do operation ...
         >>> span.end()
         """
         self._ensure_initialized()
@@ -214,7 +214,7 @@ class OpenTelemetryTracer:
         >>> tracer.initialize()
         >>> with tracer.start_as_current_span("operation") as span:
         ...     span.set_attribute("key", "value")
-        ...     # operación dentro del span
+        ...     # operation inside the span
         """
         self._ensure_initialized()
         if self._tracer is None:
@@ -230,7 +230,7 @@ class OpenTelemetryTracer:
 
             def __enter__(self) -> Any:
                 self._span = self._context_manager.__enter__()
-                # Establecer atributos después de entrar al contexto
+                # Set attributes after entering the context
                 for key, value in self._attrs.items():
                     self._span.set_attribute(key, value)
                 return self._span

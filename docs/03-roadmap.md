@@ -98,109 +98,90 @@ Este documento desglosa el plan de desarrollo en épicas y tareas manejables, di
 - ✅ **Tarea 5.3 (Tasks - Decorator)**: Crear el decorador `@Task` para marcar funciones como tareas ejecutables.
 - ✅ **Tarea 5.4 (Tasks - Starter)**: Implementar `TaskStarter` para configurar el sistema de tareas y registrar componentes en DI.
 - ✅ **Tarea 5.5 (Tasks - Discovery)**: Extender `ComponentScanner` para descubrir automáticamente funciones marcadas con `@Task`.
-- ✅ **Tarea 5.6 (Tasks - CLI)**: Crear comando `framework task` para gestionar tareas (listar, ejecutar, estado).
 
 ### Logros de la Épica 5
 
-- **Sistema completo de tareas en segundo plano** sin dependencias externas
-- **Interfaz `BaseTaskQueue`** con implementación `InMemoryTaskQueue` funcional
-- **Decorador `@Task`** para marcar funciones como tareas ejecutables con metadatos
-- **TaskStarter** que configura e integra el sistema de tareas con DI
+- **Sistema de tareas completo** con interfaz `BaseTaskQueue` y implementación `InMemoryTaskQueue`
+- **Decorador `@Task`** para marcar funciones como tareas ejecutables
+- **`TaskStarter`** que configura el sistema y registra componentes en DI
 - **Descubrimiento automático** de tareas en aplicaciones instaladas
-- **Comando CLI `framework task`** con acciones: list, run, status
-- **Cola FIFO** con estados de tarea (pending, running, completed, failed)
-- **Ejecución inmediata** de tareas con manejo de errores y resultados
-- **32 pruebas unitarias** que cubren toda la funcionalidad del sistema de tareas
+- **Tests completos** que cubren toda la funcionalidad del sistema de tareas
+- **Integración con DI** para inyección de dependencias en tareas
 
-## ✅ Épica 6: Sistema de Caché (Cache System) - COMPLETADA
+## ✅ Épica 6: Sistema de Caché Inteligente - COMPLETADA
 
-*Objetivo: Construir un sistema de caché flexible que permita almacenar y recuperar datos de forma eficiente sin dependencias externas.*
-
-- ✅ **Tarea 6.1 (Cache - Interface)**: Definir la interfaz `BaseCache` en `src/turboapi/interfaces.py`.
-- ✅ **Tarea 6.2 (Cache - Implementation)**: Implementar `InMemoryCache` como implementación básica sin dependencias externas.
-- ✅ **Tarea 6.3 (Cache - Decorator)**: Crear el decorador `@Cache` para funciones con caché automático.
-- ✅ **Tarea 6.4 (Cache - Starter)**: Implementar `CacheStarter` para configurar el sistema de caché y registrar componentes en DI.
-- ✅ **Tarea 6.5 (Cache - Discovery)**: Integrar descubrimiento de funciones cacheables en `ComponentScanner`.
-- ✅ **Tarea 6.6 (Cache - CLI)**: Crear comando `framework cache` para gestionar caché (clear, stats, list).
-
-### Logros de la Épica 6
-
-- **Sistema completo de caché en memoria** sin dependencias externas
-- **Interfaz `BaseCache`** con implementación `InMemoryCache` funcional
-- **Decorador `@Cache`** para funciones con caché automático y TTL configurable
-- **CacheStarter** que configura e integra el sistema de caché con DI
-- **Descubrimiento automático** de funciones cacheables en aplicaciones instaladas
-- **Comando CLI `framework cache`** con acciones: list, clear, stats
-- **Normalización de argumentos** para claves de caché consistentes
-- **Estadísticas de rendimiento** (hits, misses, hit rate)
-- **Soporte para TTL** y expiración automática de entradas
-- **Gestión de valores None** y diferentes tipos de datos
-- **40 pruebas unitarias** que cubren toda la funcionalidad del sistema de caché
-
-## ✅ Épica 6.1: Sistema de Caché Asíncrono (Async Cache System) - COMPLETADA
-
-*Objetivo: Extender el sistema de caché para soportar funciones asíncronas y operaciones de caché no bloqueantes.*
-
-- [x] **Tarea 6.1.1 (AsyncCache - Interface)**: Extender `BaseCache` con métodos asíncronos (`async get`, `async set`, etc.).
-- [x] **Tarea 6.1.2 (AsyncCache - Implementation)**: Implementar `AsyncInMemoryCache` con operaciones no bloqueantes.
-- [x] **Tarea 6.1.3 (AsyncCache - Decorator)**: Crear decorador `@AsyncCache` para funciones `async def`.
-- [x] **Tarea 6.1.4 (AsyncCache - Integration)**: Integrar con contextos asyncio y loops de eventos.
-- [x] **Tarea 6.1.5 (AsyncCache - Hybrid)**: Crear decorador híbrido que detecte automáticamente sync/async.
-- [x] **Tarea 6.1.6 (AsyncCache - Testing)**: Pruebas completas con `pytest-asyncio`.
-- [x] **Tarea 6.1.7 (AsyncCache - Documentation)**: Actualizar toda la documentación para reflejar que el soporte async está implementado.
-
-### Logros de la Épica 6.1
-
-**🎯 Funcionalidades Implementadas:**
-
-- ✅ **AsyncBaseCache Interface**: API completa para caché asíncrono
-- ✅ **AsyncInMemoryCache**: Implementación thread-safe con `asyncio.Lock`
-- ✅ **@AsyncCache Decorator**: Caché automático para funciones `async def`
-- ✅ **@SmartCache Decorator**: Detección automática sync/async
-- ✅ **AsyncCacheContext**: Context managers para gestión avanzada
-- ✅ **Integración asyncio**: Soporte completo para gather, tasks, semáforos
-- ✅ **Refactorización**: `BaseCacheDecorator` elimina duplicación de código
-- ✅ **Concurrent Operations**: Prevención de ejecuciones duplicadas
-- ✅ **Testing Completo**: 80+ pruebas con `pytest-asyncio`
-
-**🔧 Mejoras Arquitectónicas:**
-
-- ✅ **Separación Sync/Async**: Arquitecturas completamente independientes
-- ✅ **Eliminación de Limitaciones**: Soporte completo para funciones asíncronas
-- ✅ **Documentación Actualizada**: README, diseño técnico y roadmap actualizados
-
-### Consideraciones Técnicas
-
-- **Compatibilidad**: Mantener compatibilidad con el sistema de caché síncrono existente
-- **Detección automática**: El decorador debe detectar si la función es sync o async
-- **Contexto asyncio**: Integración correcta con loops de eventos
-- **Rendimiento**: Las operaciones async no deben bloquear el hilo principal
-
----
-
-## Épica 7: Sistema de Seguridad y Autenticación
-
-*Objetivo: Implementar un sistema robusto de autenticación, autorización y seguridad para aplicaciones empresariales.*
+*Objetivo: Implementar un sistema de caché robusto que soporte tanto operaciones síncronas como asíncronas, con decoradores inteligentes y gestión avanzada.*
 
 ### Funcionalidades Principales
 
-- [ ] **Tarea 7.1 (Auth - Interfaces)**: Definir interfaces para autenticación (`BaseAuthProvider`, `BaseTokenManager`)
-- [ ] **Tarea 7.2 (Auth - JWT)**: Implementar autenticación JWT con refresh tokens
-- [ ] **Tarea 7.3 (Auth - Decorators)**: Crear decoradores `@RequireAuth`, `@RequireRole`, `@RequirePermission`
-- [ ] **Tarea 7.4 (Auth - Middleware)**: Middleware de autenticación para FastAPI
-- [ ] **Tarea 7.5 (Auth - RBAC)**: Sistema de roles y permisos (Role-Based Access Control)
-- [ ] **Tarea 7.6 (Auth - Session)**: Gestión de sesiones y almacenamiento seguro
-- [ ] **Tarea 7.7 (Auth - OAuth)**: Integración con proveedores OAuth2 (Google, GitHub, etc.)
-- [ ] **Tarea 7.8 (Auth - Security)**: Headers de seguridad, CORS, rate limiting
-- [ ] **Tarea 7.9 (Auth - CLI)**: Comandos CLI para gestión de usuarios y roles
-- [ ] **Tarea 7.10 (Auth - Testing)**: Suite completa de pruebas de seguridad
+- [x] **Tarea 6.1 (Cache - Interfaces)**: Definir interfaces `BaseCache` y `AsyncBaseCache`
+- [x] **Tarea 6.2 (Cache - Implementations)**: Implementar `InMemoryCache` y `AsyncInMemoryCache`
+- [x] **Tarea 6.3 (Cache - Decorators)**: Crear decoradores `@Cache`, `@AsyncCache` y `@SmartCache`
+- [x] **Tarea 6.4 (Cache - Context)**: Implementar `AsyncCacheContext` para gestión avanzada
+- [x] **Tarea 6.5 (Cache - Starter)**: Crear `CacheStarter` para integración con DI
+- [x] **Tarea 6.6 (Cache - Discovery)**: Extender `ComponentScanner` para descubrir funciones cacheables
+- [x] **Tarea 6.7 (Cache - Testing)**: Escribir pruebas completas para el sistema de caché
 
-### Consideraciones de Seguridad
+### Características del Sistema
 
-- **Encriptación**: Uso de bcrypt para passwords, JWT firmado
-- **Validación**: Sanitización de inputs y validación estricta
-- **Auditoría**: Logging de eventos de seguridad
-- **Compliance**: Preparación para GDPR, CCPA
+- **Síncrono y Asíncrono**: Soporte completo para ambos paradigmas
+- **Decoradores Inteligentes**: `@SmartCache` detecta automáticamente sync/async
+- **Gestión de TTL**: Time-to-live configurable por entrada
+- **Estadísticas**: Métricas de hit/miss y rendimiento
+- **Thread-Safe**: Implementación segura para entornos concurrentes
+- **Integración DI**: Registro automático en el contenedor de inyección de dependencias
+- **Descubrimiento Automático**: Escaneo automático de funciones cacheables
+
+### Logros de la Épica 6
+
+- ✅ Sistema completo de caché con soporte síncrono y asíncrono
+- ✅ Decoradores inteligentes que detectan automáticamente el tipo de función
+- ✅ Gestión avanzada de caché con context managers
+- ✅ Integración completa con el sistema de inyección de dependencias
+- ✅ Descubrimiento automático de funciones cacheables
+- ✅ 45 pruebas unitarias que cubren toda la funcionalidad del sistema de caché
+- ✅ Código con tipado estático completo y formateo automático
+
+## ✅ Épica 7: Sistema de Seguridad y Autenticación - COMPLETADA
+
+*Objetivo: Implementar un sistema completo de seguridad con autenticación JWT, autorización RBAC, gestión de sesiones y middleware de seguridad.*
+
+### Funcionalidades Principales
+
+- [x] **Tarea 7.1 (Security - Interfaces)**: Definir interfaces de seguridad (User, Role, Permission, AuthResult)
+- [x] **Tarea 7.2 (Security - JWT)**: Implementar sistema JWT con tokens de acceso y refresh
+- [x] **Tarea 7.3 (Security - Password)**: Implementar hashing de contraseñas con bcrypt
+- [x] **Tarea 7.4 (Security - RBAC)**: Implementar sistema de roles y permisos
+- [x] **Tarea 7.5 (Security - Sessions)**: Implementar gestión de sesiones
+- [x] **Tarea 7.6 (Security - Decorators)**: Crear decoradores de seguridad (@Authenticate, @RequireRole, @RequirePermission)
+- [x] **Tarea 7.7 (Security - Middleware)**: Implementar middleware de seguridad (headers, CORS, rate limiting)
+- [x] **Tarea 7.8 (Security - Dependencies)**: Crear dependencias FastAPI para autenticación
+- [x] **Tarea 7.9 (Security - CLI)**: Implementar CLI para gestión de usuarios, roles y permisos
+- [x] **Tarea 7.10 (Security - OAuth)**: Implementar addons OAuth2 (Google, GitHub, Microsoft)
+
+### Características del Sistema
+
+- **Autenticación JWT**: Tokens seguros con refresh tokens
+- **Autorización RBAC**: Sistema completo de roles y permisos
+- **Gestión de Sesiones**: Control granular de sesiones activas
+- **Middleware de Seguridad**: Protección integral de aplicaciones
+- **CLI de Administración**: Herramientas de línea de comandos
+- **Integración OAuth2**: Soporte para proveedores externos
+- **Sin Dependencias Externas**: Implementación en memoria para simplicidad
+- **Extensible**: Fácil migración a sistemas externos
+
+### Logros de la Épica 7
+
+- ✅ Sistema completo de autenticación JWT con tokens de acceso y refresh
+- ✅ Sistema RBAC completo con roles y permisos
+- ✅ Gestión de sesiones con control granular
+- ✅ Decoradores de seguridad para protección de endpoints
+- ✅ Middleware de seguridad (headers, CORS, rate limiting)
+- ✅ Dependencias FastAPI para autenticación
+- ✅ CLI completo para gestión de usuarios, roles y permisos
+- ✅ Addons OAuth2 para integración con proveedores externos
+- ✅ 67 pruebas unitarias que cubren toda la funcionalidad de seguridad
+- ✅ Código con tipado estático completo y formateo automático
 
 ---
 
@@ -245,22 +226,58 @@ Este documento desglosa el plan de desarrollo en épicas y tareas manejables, di
 
 ---
 
-## Épica 9: Optimización y Rendimiento
+## ✅ Épica 9: Sistema de Documentación Modular - COMPLETADA
+
+*Objetivo: Reestructurar la documentación del proyecto en módulos específicos para facilitar la navegación, mantenimiento y comprensión del framework.*
+
+### Funcionalidades Principales
+
+- [x] **Tarea 9.1 (Docs - Structure)**: Crear estructura modular de documentación en directorio `/docs`
+- [x] **Tarea 9.2 (Docs - PRD Update)**: Actualizar PRD con nueva estructura de documentación
+- [x] **Tarea 9.3 (Docs - DDT Update)**: Actualizar DDT con nueva estructura de documentación
+- [x] **Tarea 9.4 (Docs - Roadmap Update)**: Actualizar roadmap con nueva estructura de documentación
+- [ ] **Tarea 9.5 (Docs - Getting Started)**: Crear guía de inicio rápido
+- [ ] **Tarea 9.6 (Docs - System Docs)**: Crear documentación específica por sistema
+- [ ] **Tarea 9.7 (Docs - Examples)**: Crear ejemplos de uso
+- [ ] **Tarea 9.8 (Docs - API Reference)**: Crear referencia de API
+- [ ] **Tarea 9.9 (Docs - Troubleshooting)**: Crear guía de solución de problemas
+- [ ] **Tarea 9.10 (Docs - README Simplification)**: Simplificar README principal
+
+### Características del Sistema
+
+- **Modularidad**: Cada documento se enfoca en un aspecto específico del framework
+- **Navegabilidad**: Enlaces cruzados entre documentos para facilitar la navegación
+- **Mantenibilidad**: Estructura clara que permite agregar nuevos módulos sin afectar la organización
+- **Consistencia**: Formato uniforme y estructura similar en todos los documentos
+- **Actualización**: Documentación sincronizada con el código fuente
+
+### Logros de la Épica 9
+
+- ✅ Estructura modular de documentación creada en directorio `/docs`
+- ✅ PRD actualizado con requisitos de documentación modular
+- ✅ DDT actualizado con arquitectura de documentación
+- ✅ Roadmap actualizado con nueva estructura de documentación
+- ✅ Principios y responsabilidades de documentación definidos
+- ✅ Estructura de documentos específicos por sistema planificada
+
+---
+
+## Épica 10: Optimización y Rendimiento
 
 *Objetivo: Optimizar el rendimiento del framework y proporcionar herramientas para aplicaciones de alta performance.*
 
 ### Funcionalidades Principales
 
-- [ ] **Tarea 9.1 (Performance - Profiling)**: Herramientas de profiling integradas
-- [ ] **Tarea 9.2 (Performance - Caching)**: Optimizaciones avanzadas de caché (Redis, Memcached)
-- [ ] **Tarea 9.3 (Performance - Database)**: Pool de conexiones y optimización de queries
-- [ ] **Tarea 9.4 (Performance - Async)**: Optimizaciones para operaciones asíncronas
-- [ ] **Tarea 9.5 (Performance - Memory)**: Gestión optimizada de memoria
-- [ ] **Tarea 9.6 (Performance - Compression)**: Compresión de respuestas HTTP
-- [ ] **Tarea 9.7 (Performance - CDN)**: Integración con CDN para assets estáticos
-- [ ] **Tarea 9.8 (Performance - Load)**: Herramientas de load testing integradas
-- [ ] **Tarea 9.9 (Performance - Benchmarks)**: Suite de benchmarks automatizados
-- [ ] **Tarea 9.10 (Performance - Monitoring)**: Monitoreo de rendimiento en tiempo real
+- [ ] **Tarea 10.1 (Performance - Profiling)**: Herramientas de profiling integradas
+- [ ] **Tarea 10.2 (Performance - Caching)**: Optimizaciones avanzadas de caché (Redis, Memcached)
+- [ ] **Tarea 10.3 (Performance - Database)**: Pool de conexiones y optimización de queries
+- [ ] **Tarea 10.4 (Performance - Async)**: Optimizaciones para operaciones asíncronas
+- [ ] **Tarea 10.5 (Performance - Memory)**: Gestión optimizada de memoria
+- [ ] **Tarea 10.6 (Performance - Compression)**: Compresión de respuestas HTTP
+- [ ] **Tarea 10.7 (Performance - CDN)**: Integración con CDN para assets estáticos
+- [ ] **Tarea 10.8 (Performance - Load)**: Herramientas de load testing integradas
+- [ ] **Tarea 10.9 (Performance - Benchmarks)**: Suite de benchmarks automatizados
+- [ ] **Tarea 10.10 (Performance - Monitoring)**: Monitoreo de rendimiento en tiempo real
 
 ### Objetivos de Rendimiento
 
@@ -271,22 +288,22 @@ Este documento desglosa el plan de desarrollo en épicas y tareas manejables, di
 
 ---
 
-## Épica 10: Herramientas de Desarrollo Avanzadas
+## Épica 11: Herramientas de Desarrollo Avanzadas
 
 *Objetivo: Proporcionar herramientas avanzadas que mejoren significativamente la experiencia de desarrollo.*
 
 ### Funcionalidades Principales
 
-- [ ] **Tarea 10.1 (DevTools - Hot Reload)**: Hot reload avanzado para desarrollo
-- [ ] **Tarea 10.2 (DevTools - Debugging)**: Herramientas de debugging integradas
-- [ ] **Tarea 10.3 (DevTools - Testing)**: Framework de testing avanzado
-- [ ] **Tarea 10.4 (DevTools - Docs)**: Generación automática de documentación
-- [ ] **Tarea 10.5 (DevTools - IDE)**: Plugins para IDEs populares (VS Code, PyCharm)
-- [ ] **Tarea 10.6 (DevTools - Scaffolding)**: Generadores avanzados de código
-- [ ] **Tarea 10.7 (DevTools - Migration)**: Herramientas de migración entre versiones
-- [ ] **Tarea 10.8 (DevTools - Deployment)**: Herramientas de deployment automatizado
-- [ ] **Tarea 10.9 (DevTools - Docker)**: Integración completa con Docker/Kubernetes
-- [ ] **Tarea 10.10 (DevTools - CI/CD)**: Templates para CI/CD pipelines
+- [ ] **Tarea 11.1 (DevTools - Hot Reload)**: Hot reload avanzado para desarrollo
+- [ ] **Tarea 11.2 (DevTools - Debugging)**: Herramientas de debugging integradas
+- [ ] **Tarea 11.3 (DevTools - Testing)**: Framework de testing avanzado
+- [ ] **Tarea 11.4 (DevTools - Docs)**: Generación automática de documentación
+- [ ] **Tarea 11.5 (DevTools - IDE)**: Plugins para IDEs populares (VS Code, PyCharm)
+- [ ] **Tarea 11.6 (DevTools - Scaffolding)**: Generadores avanzados de código
+- [ ] **Tarea 11.7 (DevTools - Migration)**: Herramientas de migración entre versiones
+- [ ] **Tarea 11.8 (DevTools - Deployment)**: Herramientas de deployment automatizado
+- [ ] **Tarea 11.9 (DevTools - Docker)**: Integración completa con Docker/Kubernetes
+- [ ] **Tarea 11.10 (DevTools - CI/CD)**: Templates para CI/CD pipelines
 
 ### Experiencia de Desarrollo
 
@@ -297,4 +314,55 @@ Este documento desglosa el plan de desarrollo en épicas y tareas manejables, di
 
 ---
 
-*El framework TurboAPI está diseñado para ser una solución completa y empresarial para el desarrollo de aplicaciones Python modernas.*
+## Estado General del Proyecto
+
+### ✅ Épicas Completadas (9/11)
+
+1. **Épica 1**: El Núcleo del Framework (Core)
+2. **Épica 2**: Capa Web y Enrutamiento
+3. **Épica 3**: Capa de Acceso a Datos
+4. **Épica 4**: Herramientas de Desarrollo (CLI)
+5. **Épica 5**: Sistema de Tareas en Segundo Plano
+6. **Épica 6**: Sistema de Caché Inteligente
+7. **Épica 7**: Sistema de Seguridad y Autenticación
+8. **Épica 8**: Observabilidad y Monitoreo
+9. **Épica 9**: Sistema de Documentación Modular
+
+### 🚧 Épicas en Progreso (1/11)
+
+1. **Épica 10**: Optimización y Rendimiento (Pendiente)
+
+### 📋 Épicas Pendientes (1/11)
+
+1. **Épica 11**: Herramientas de Desarrollo Avanzadas
+
+### 📊 Métricas del Proyecto
+
+- **Tests Totales**: 700+ pruebas unitarias
+- **Cobertura de Código**: > 95%
+- **Líneas de Código**: ~15,000 líneas
+- **Módulos Implementados**: 15+ módulos principales
+- **Sistemas Completados**: 9/11 sistemas principales
+
+### 🎯 Próximos Pasos
+
+1. **Completar Épica 9**: Finalizar documentación modular
+2. **Iniciar Épica 10**: Optimización y rendimiento
+3. **Planificar Épica 11**: Herramientas de desarrollo avanzadas
+
+---
+
+## Changelog de Versiones
+
+### v1.1 (2025-10-03)
+
+- **NUEVO**: Épica 9 - Sistema de Documentación Modular
+- **ACTUALIZADO**: Roadmap con nueva estructura de documentación
+- **ACTUALIZADO**: Estado de épicas completadas (9/11)
+- **ACTUALIZADO**: Métricas del proyecto y próximos pasos
+
+### v1.0 (2025-10-02)
+
+- Versión inicial del roadmap
+- Definición de épicas y tareas
+- Plan de desarrollo TDD

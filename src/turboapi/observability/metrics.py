@@ -1,4 +1,4 @@
-"""Sistema de métricas basado en OpenTelemetry para TurboAPI."""
+"""Metrics system based on OpenTelemetry for TurboAPI."""
 
 from dataclasses import dataclass
 from typing import Any
@@ -12,7 +12,7 @@ from opentelemetry.sdk.resources import Resource
 
 @dataclass
 class MetricConfig:
-    """Configuración para el sistema de métricas."""
+    """Configuration for the metrics system."""
 
     enable_otel: bool = True
     enable_prometheus_export: bool = True
@@ -56,7 +56,7 @@ class MetricConfig:
 
 
 class OpenTelemetryCollector:
-    """Recolector de métricas basado en OpenTelemetry."""
+    """Metrics collector based on OpenTelemetry."""
 
     def __init__(self, config: MetricConfig):
         """
@@ -92,7 +92,7 @@ class OpenTelemetryCollector:
         if not self.config.enable_otel:
             return
 
-        # Crear resource con información del servicio
+        # Create resource with service information
         resource = Resource.create(
             {
                 "service.name": self.config.otel_service_name,
@@ -118,7 +118,7 @@ class OpenTelemetryCollector:
         # Obtener el meter
         self._meter = metrics.get_meter("turboapi")
 
-        # Instrumentar métricas del sistema si está habilitado
+        # Instrument system metrics if enabled
         if self.config.enable_system_metrics:
             self._system_instrumentor = SystemMetricsInstrumentor()
             self._system_instrumentor.instrument()
@@ -126,7 +126,7 @@ class OpenTelemetryCollector:
         self._initialized = True
 
     def _ensure_initialized(self) -> None:
-        """Asegura que el recolector esté inicializado."""
+        """Ensures the collector is initialized."""
         if not self._initialized:
             self.initialize()
 
@@ -261,7 +261,7 @@ class OpenTelemetryCollector:
         """
         self._ensure_initialized()
 
-        # Intentar importar psutil para obtener métricas del sistema
+        # Try to import psutil to get system metrics
         try:
             import psutil
         except ImportError:
@@ -277,7 +277,7 @@ class OpenTelemetryCollector:
             }
 
         try:
-            # Obtener métricas del sistema
+            # Get system metrics
             cpu_percent = psutil.cpu_percent(interval=1)
             memory = psutil.virtual_memory()
             disk = psutil.disk_usage("/")
@@ -322,7 +322,7 @@ class OpenTelemetryCollector:
         """
         self._ensure_initialized()
 
-        # Intentar importar psutil para obtener métricas del proceso
+        # Try to import psutil to get process metrics
         try:
             import psutil
         except ImportError:
@@ -337,7 +337,7 @@ class OpenTelemetryCollector:
             }
 
         try:
-            # Obtener métricas del proceso
+            # Get process metrics
             process = psutil.Process()
             memory_info = process.memory_info()
 
@@ -362,8 +362,8 @@ class OpenTelemetryCollector:
             }
 
 
-# Funciones de conveniencia para compatibilidad con código existente
-# Estas funciones están deprecadas y se recomienda usar inyección de dependencias
+# Convenience functions for compatibility with existing code
+# These functions are deprecated and dependency injection is recommended
 
 
 def configure_metrics(config: MetricConfig) -> OpenTelemetryCollector:
@@ -421,7 +421,7 @@ def get_metrics_collector() -> OpenTelemetryCollector:
     return collector
 
 
-# Funciones de conveniencia que retornan métricas OpenTelemetry nativas
+# Convenience functions that return native OpenTelemetry metrics
 def create_counter(name: str, description: str) -> Any:
     """
     Crea un contador usando el recolector global.

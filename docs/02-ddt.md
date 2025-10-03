@@ -1,4 +1,4 @@
-# Documento de Diseño Técnico
+# Documento de Diseño Técnico (DDT)
 
 Este documento detalla las decisiones tecnológicas clave para la implementación del framework, basadas en el Plan Arquitectónico.
 
@@ -77,6 +77,54 @@ installed_apps = [
     - Ubicado en `src/turboapi/cli/`.
     - Implementará los comandos `new`, `new-app`, `run`, etc., que operan sobre la estructura del proyecto del usuario.
 
+## Sistema de Documentación
+
+### Arquitectura de Documentación
+
+El sistema de documentación está diseñado para ser modular, mantenible y fácil de navegar, siguiendo el principio de separación de responsabilidades.
+
+#### Estructura de Documentación
+
+```
+docs/
+├── 01-prd.md                    # Product Requirements Document
+├── 02-ddt.md                    # Documento de Diseño Técnico
+├── 03-roadmap.md                # Roadmap de desarrollo
+├── 04-getting-started.md        # Guía de inicio rápido
+├── 05-core-system.md            # Documentación del sistema core
+├── 06-web-layer.md              # Documentación de la capa web
+├── 07-data-layer.md             # Documentación de la capa de datos
+├── 08-security-system.md        # Documentación del sistema de seguridad
+├── 09-observability-system.md   # Documentación del sistema de observabilidad
+├── 10-cli-tools.md              # Documentación de herramientas CLI
+├── 11-cache-system.md           # Documentación del sistema de caché
+├── 12-task-system.md            # Documentación del sistema de tareas
+├── 13-addons-system.md          # Documentación del sistema de addons
+├── 14-examples.md               # Ejemplos de uso
+├── 15-api-reference.md          # Referencia de API
+└── 16-troubleshooting.md        # Guía de solución de problemas
+```
+
+#### Principios de Documentación
+
+1. **Modularidad**: Cada documento se enfoca en un aspecto específico del framework
+2. **Navegabilidad**: Enlaces cruzados entre documentos para facilitar la navegación
+3. **Mantenibilidad**: Estructura clara que permite agregar nuevos módulos sin afectar la organización
+4. **Consistencia**: Formato uniforme y estructura similar en todos los documentos
+5. **Actualización**: Documentación sincronizada con el código fuente
+
+#### Responsabilidades por Documento
+
+- **README.md**: Punto de entrada principal con información general y enlaces
+- **01-prd.md**: Requisitos del producto y visión
+- **02-ddt.md**: Decisiones técnicas y arquitectura
+- **03-roadmap.md**: Plan de desarrollo y estado del proyecto
+- **04-getting-started.md**: Guía de instalación y primer proyecto
+- **05-XX-system.md**: Documentación detallada de cada sistema del framework
+- **14-examples.md**: Ejemplos prácticos de uso
+- **15-api-reference.md**: Referencia completa de la API
+- **16-troubleshooting.md**: Solución de problemas comunes
+
 ## Sistema de Caché
 
 ### Arquitectura del Sistema de Caché
@@ -98,474 +146,331 @@ El sistema de caché de TurboAPI proporciona una capa de almacenamiento temporal
 11. **CacheStarter**: Integración con el sistema de inyección de dependencias
 12. **ComponentScanner**: Descubrimiento automático de funciones cacheables
 
-#### Funcionalidades Implementadas
-
-**Caché Síncrono:**
+#### Características del Sistema
 
-- ✅ Caché en memoria con TTL configurable
-- ✅ Normalización de argumentos para claves consistentes
-- ✅ Estadísticas de rendimiento (hits, misses, hit rate)
-- ✅ Limpieza automática de entradas expiradas
-- ✅ Decorador `@Cache` para funciones síncronas
-- ✅ CLI para gestión del caché
-- ✅ Integración con sistema de inyección de dependencias
-
-**Caché Asíncrono:**
-
-- ✅ Implementación completamente asíncrona (`AsyncInMemoryCache`)
-- ✅ Decorador `@AsyncCache` para funciones `async def`
-- ✅ Manejo de operaciones concurrentes con `asyncio.Lock`
-- ✅ Prevención de ejecuciones duplicadas con pending operations
-- ✅ Integración con contextos asyncio (gather, tasks, semáforos)
-- ✅ Context managers para gestión avanzada (`AsyncCacheContext`)
-- ✅ Separación arquitectónica completa entre sync y async
-
-**Funcionalidades Avanzadas:**
-
-- ✅ Decorador híbrido `@SmartCache` con detección automática
-- ✅ Refactorización con `BaseCacheDecorator` para eliminar duplicación
-- ✅ Soporte para funciones personalizadas de generación de claves
-- ✅ Manejo robusto de excepciones y timeouts
-- ✅ Compatibilidad completa con `pytest-asyncio`
-
----
-
-## Sistema de Seguridad y Autenticación
-
-### Arquitectura de Seguridad (REQ 4.x)
-
-El framework implementa un sistema de seguridad robusto que cumple con estándares empresariales y facilita la implementación de autenticación y autorización.
-
-#### Componentes de Seguridad
+- **Síncrono y Asíncrono**: Soporte completo para ambos paradigmas
+- **Decoradores Inteligentes**: Decoradores que detectan automáticamente el tipo de función
+- **Gestión de TTL**: Time-to-live configurable por entrada
+- **Estadísticas**: Métricas de hit/miss y rendimiento
+- **Thread-Safe**: Implementación segura para entornos concurrentes
+- **Integración DI**: Registro automático en el contenedor de inyección de dependencias
+- **Descubrimiento Automático**: Escaneo automático de funciones cacheables
 
-**1. Interfaces Base (`src/turboapi/security/interfaces.py`)**
-
-```python
-class BaseAuthProvider(ABC):
-    """Interface para proveedores de autenticación."""
-    @abstractmethod
-    async def authenticate(self, credentials: dict) -> AuthResult: ...
-    @abstractmethod
-    async def validate_token(self, token: str) -> TokenPayload: ...
+#### Implementaciones Disponibles
 
-class BaseTokenManager(ABC):
-    """Interface para gestión de tokens."""
-    @abstractmethod
-    def generate_token(self, payload: dict) -> str: ...
-    @abstractmethod
-    def verify_token(self, token: str) -> dict: ...
-
-class BaseRBACManager(ABC):
-    """Interface para control de acceso basado en roles."""
-    @abstractmethod
-    async def check_permission(self, user: User, resource: str, action: str) -> bool: ...
-```
-
-**2. Gestión de Autenticación (`src/turboapi/security/auth.py`)**
-
-- **JWTAuthProvider**: Implementación JWT con refresh tokens
-- **OAuth2Provider**: Integración con proveedores externos (Google, GitHub, etc.)
-- **SessionManager**: Gestión de sesiones seguras con almacenamiento configurable
-
-**3. Control de Acceso (`src/turboapi/security/rbac.py`)**
-
-- **RBACManager**: Sistema completo de roles, permisos y recursos
-- **PermissionRegistry**: Registro automático de permisos desde decoradores
-- **RoleHierarchy**: Soporte para jerarquías de roles
-
-**4. Middleware de Seguridad (`src/turboapi/security/middleware.py`)**
-
-- **AuthenticationMiddleware**: Verificación automática de tokens
-- **SecurityHeadersMiddleware**: Headers de seguridad automáticos
-- **RateLimitMiddleware**: Rate limiting configurable
-- **CORSMiddleware**: Configuración CORS segura
-
-#### Decoradores de Seguridad
-
-```python
-# Autenticación requerida
-@Controller("/api/secure")
-class SecureController:
-    @Get("/data")
-    @RequireAuth()
-    async def get_data(self) -> dict: ...
-
-    # Control de acceso basado en roles
-    @Post("/admin")
-    @RequireRole("admin")
-    async def admin_action(self) -> dict: ...
+1. **InMemoryCache**: Para desarrollo y testing
+2. **AsyncInMemoryCache**: Para aplicaciones asíncronas
+3. **Extensible**: Fácil integración con Redis, Memcached, etc.
 
-    # Control granular de permisos
-    @Delete("/resource/{id}")
-    @RequirePermission("resource:delete")
-    async def delete_resource(self, id: int) -> dict: ...
-```
-
-#### Configuración de Seguridad (`pyproject.toml`)
-
-```toml
-[tool.turboapi.security]
-# JWT Configuration
-jwt_secret = "${JWT_SECRET}"
-jwt_algorithm = "HS256"
-jwt_expiration = 3600
-refresh_token_expiration = 86400
-
-# Session Configuration
-session_backend = "memory"  # memory, redis, database
-session_expire = 1800
-
-# Security Headers
-security_headers = true
-cors_origins = ["http://localhost:3000"]
-rate_limit = {requests = 100, window = 60}
-
-# OAuth2 Providers
-[tool.turboapi.security.oauth2]
-google = {client_id = "${GOOGLE_CLIENT_ID}", client_secret = "${GOOGLE_CLIENT_SECRET}"}
-github = {client_id = "${GITHUB_CLIENT_ID}", client_secret = "${GITHUB_CLIENT_SECRET}"}
-```
-
-#### Auditoría y Compliance
-
-**1. Logging de Seguridad (`src/turboapi/security/audit.py`)**
-
-- **SecurityLogger**: Logging estructurado de eventos de seguridad
-- **AuditTrail**: Trazabilidad completa de acciones de usuarios
-- **ComplianceReporter**: Reportes para GDPR, CCPA
-
-**2. Validación y Sanitización**
-
-- **InputValidator**: Validación estricta de inputs con Pydantic
-- **XSSProtection**: Protección automática contra XSS
-- **SQLInjectionProtection**: Protección contra inyección SQL
-
-#### Casos de Uso de Seguridad
-
-**Caso de Uso 1: Autenticación JWT**
-
-```python
-# 1. Login endpoint
-@Post("/auth/login")
-async def login(credentials: LoginRequest, auth: JWTAuthProvider) -> TokenResponse:
-    result = await auth.authenticate(credentials.dict())
-    return TokenResponse(
-        access_token=result.access_token,
-        refresh_token=result.refresh_token,
-        expires_in=3600
-    )
-
-# 2. Endpoint protegido
-@Get("/profile")
-@RequireAuth()
-async def get_profile(current_user: User) -> UserProfile:
-    return UserProfile.from_user(current_user)
-```
-
-**Caso de Uso 2: Control de Acceso RBAC**
-
-```python
-# Definición de roles
-@dataclass
-class Role:
-    name: str
-    permissions: list[str]
-
-# Configuración en el controlador
-@Controller("/api/admin")
-@RequireRole("admin")
-class AdminController:
-    @Get("/users")
-    @RequirePermission("user:list")
-    async def list_users(self) -> list[User]: ...
-```
-
----
-
-## Sistema de Observabilidad y Monitoreo
-
-### Arquitectura de Observabilidad (REQ 5.x)
-
-El framework integra capacidades completas de observabilidad siguiendo estándares de la industria para facilitar el monitoreo y diagnóstico de aplicaciones.
-
-#### Stack de Observabilidad
-
-**1. Logging Estructurado (`src/turboapi/observability/logging.py`)**
-
-```python
-class StructuredLogger:
-    """Logger estructurado con contexto automático."""
-    def info(self, message: str, **context): ...
-    def error(self, message: str, error: Exception, **context): ...
-    
-    # Integración automática con request context
-    @contextmanager
-    def request_context(self, request_id: str, user_id: str = None): ...
-```
-
-**2. Métricas y Monitoreo (`src/turboapi/observability/metrics.py`)**
-
-- **OpenTelemetryCollector**: Sistema unificado basado en OpenTelemetry
-- **PrometheusExporter**: Exportador automático a Prometheus para compatibilidad
-- **MetricsRegistry**: Registro automático de métricas de aplicación
-- **CustomMetrics**: API para métricas personalizadas del usuario
-
-**3. Trazabilidad Distribuida (`src/turboapi/observability/tracing.py`)**
-
-- **OpenTelemetryIntegration**: Integración completa con OpenTelemetry (unificado con métricas)
-- **TraceManager**: Gestión automática de traces y spans
-- **ContextPropagation**: Propagación de contexto entre servicios
-
-#### Health Checks y Diagnósticos
-
-**1. Health Check System (`src/turboapi/observability/health.py`)**
-
-```python
-@HealthCheck("database")
-async def check_database() -> HealthStatus:
-    """Verifica conectividad de base de datos."""
-    ...
-
-@HealthCheck("cache")
-async def check_cache() -> HealthStatus:
-    """Verifica estado del sistema de caché."""
-    ...
-
-# Endpoint automático: GET /health
-# Respuesta: {"status": "healthy", "checks": {...}}
-```
-
-**2. Métricas Automáticas**
-
-- Request/Response time
-- Error rates por endpoint
-- Cache hit/miss ratios
-- Database connection pool status
-- Memory usage y garbage collection
-
-#### Configuración de Observabilidad (`pyproject.toml`)
-
-```toml
-[tool.turboapi.observability]
-# Logging
-log_level = "INFO"
-log_format = "json"  # json, text
-log_destination = "stdout"  # stdout, file, syslog
-
-# Metrics (OpenTelemetry-based)
-metrics_enabled = true
-metrics_endpoint = "/metrics"
-prometheus_export = true  # Export to Prometheus format
-otel_service_name = "turboapi-app"
-
-# Tracing
-tracing_enabled = true
-tracing_endpoint = "http://jaeger:14268/api/traces"
-trace_sample_rate = 0.1
-
-# Health Checks
-health_endpoint = "/health"
-health_checks_interval = 30
-
-# APM (OpenTelemetry base + addons)
-apm_enabled = true
-service_name = "turboapi-app"
-environment = "production"
-version = "1.0.0"
-sample_rate = 0.1
-
-# APM Addons (opcionales)
-[tool.turboapi.observability.apm.newrelic]
-enabled = true
-license_key = "${NEW_RELIC_LICENSE_KEY}"
-app_name = "turboapi-app"
-
-[tool.turboapi.observability.apm.datadog]
-enabled = true
-api_key = "${DATADOG_API_KEY}"
-service = "turboapi-app"
-env = "production"
-```
-
-#### Integración con Herramientas Externas
-
-**1. OpenTelemetry + Prometheus + Grafana**
-
-- Sistema unificado OpenTelemetry con exportación automática a Prometheus
-- Dashboards predefinidos para métricas del framework
-- Alertas automáticas para errores críticos
-- Visualización de performance trends
-
-**2. ELK Stack / OpenSearch**
-
-- Configuración automática para logging centralizado
-- Índices optimizados para búsquedas de logs
-- Dashboards de Kibana predefinidos
-
-**3. APM Tools (como Addons)**
-
-- **Core APM**: OpenTelemetry (siempre disponible)
-- **New Relic Addon**: `addons/apm/newrelic.py` - Integración con New Relic
-- **DataDog Addon**: `addons/apm/datadog.py` - Integración con DataDog  
-- **Elastic APM Addon**: `addons/apm/elastic.py` - Integración con Elastic APM
-
-#### Sistema de Addons
-
-El framework implementa un sistema de addons que permite extender funcionalidades sin modificar el core:
-
-**Estructura de Addons:**
+### Sistema de Tareas en Segundo Plano
+
+#### Arquitectura del Sistema de Tareas
+
+El sistema de tareas proporciona capacidades para ejecutar trabajos de forma asíncrona sin dependencias externas.
+
+#### Componentes Principales
+
+1. **BaseTaskQueue (Interface)**: Define la API estándar para colas de tareas
+2. **InMemoryTaskQueue**: Implementación en memoria sin dependencias externas
+3. **@Task Decorator**: Decorador para marcar funciones como tareas ejecutables
+4. **TaskStarter**: Integración con el sistema de inyección de dependencias
+5. **ComponentScanner**: Descubrimiento automático de funciones marcadas con @Task
+
+#### Características del Sistema
+
+- **Sin Dependencias Externas**: Implementación en memoria para simplicidad
+- **Decoradores**: Marcado simple de funciones como tareas
+- **Integración DI**: Registro automático en el contenedor
+- **Descubrimiento Automático**: Escaneo automático de tareas
+- **Extensible**: Fácil migración a Celery, RQ, etc.
+
+### Sistema de Seguridad y Autenticación
+
+#### Arquitectura del Sistema de Seguridad
+
+El sistema de seguridad proporciona autenticación, autorización y protección integral para aplicaciones TurboAPI.
+
+#### Componentes Principales
+
+1. **Interfaces de Seguridad**:
+   - `User`: Modelo de usuario con roles y permisos
+   - `Role`: Modelo de rol con permisos asociados
+   - `Permission`: Modelo de permiso con recurso y acción
+   - `AuthResult`: Resultado de operaciones de autenticación
+
+2. **Sistema JWT**:
+   - `JWTTokenManager`: Gestión de tokens JWT y refresh tokens
+   - `PasswordHandler`: Hashing y verificación de contraseñas con bcrypt
+   - `JWTAuthProvider`: Proveedor de autenticación JWT
+
+3. **Sistema RBAC**:
+   - `InMemoryRBACManager`: Gestión de roles y permisos en memoria
+   - Asignación de roles a usuarios
+   - Asignación de permisos a roles
+   - Verificación de permisos
+
+4. **Gestión de Sesiones**:
+   - `InMemorySessionManager`: Gestión de sesiones en memoria
+   - `SessionInfo`: Información de sesión con metadatos
+   - Revocación de sesiones individuales y por usuario
+
+5. **Decoradores de Seguridad**:
+   - `@Authenticate`: Requiere autenticación
+   - `@RequireRole`: Requiere roles específicos
+   - `@RequirePermission`: Requiere permisos específicos
+
+6. **Middleware de Seguridad**:
+   - `SecurityMiddleware`: Headers de seguridad, CORS, rate limiting
+   - `CORSSecurityMiddleware`: Configuración CORS avanzada
+   - `RateLimitMiddleware`: Limitación de velocidad por IP
+
+7. **Dependencias FastAPI**:
+   - `get_current_user`: Obtención del usuario actual
+   - Integración nativa con el ecosistema FastAPI
+
+8. **CLI de Seguridad**:
+   - Comandos para gestión de usuarios, roles y permisos
+   - Comandos para gestión de sesiones
+   - Comandos de verificación y diagnóstico
+
+#### Características del Sistema
+
+- **Autenticación JWT**: Tokens seguros con refresh tokens
+- **Autorización RBAC**: Sistema completo de roles y permisos
+- **Gestión de Sesiones**: Control granular de sesiones activas
+- **Middleware de Seguridad**: Protección integral de aplicaciones
+- **CLI de Administración**: Herramientas de línea de comandos
+- **Integración OAuth2**: Soporte para proveedores externos (como addons)
+- **Sin Dependencias Externas**: Implementación en memoria para simplicidad
+- **Extensible**: Fácil migración a sistemas externos
+
+### Sistema de Observabilidad
+
+#### Arquitectura del Sistema de Observabilidad
+
+El sistema de observabilidad proporciona logging, métricas, tracing y health checks para aplicaciones TurboAPI.
+
+#### Componentes Principales
+
+1. **Sistema de Logging**:
+   - `TurboLogging`: Logger estructurado con `structlog`
+   - `LoggingConfig`: Configuración de niveles y formato
+   - `StructuredLogger`: Logger con campos estructurados
+
+2. **Sistema de Métricas**:
+   - `OpenTelemetryCollector`: Recolector basado en OpenTelemetry
+   - `MetricConfig`: Configuración de métricas
+   - Integración con Prometheus para exportación
+   - Métricas del sistema con `SystemMetricsInstrumentor`
+
+3. **Sistema de Tracing**:
+   - `OpenTelemetryTracer`: Tracer basado en OpenTelemetry
+   - `TracingConfig`: Configuración de tracing
+   - Integración con Jaeger para visualización
+   - Context managers para spans
+
+4. **Sistema de Health Checks**:
+   - `HealthChecker`: Verificador de salud de la aplicación
+   - `BaseHealthCheck`: Clase base para health checks personalizados
+   - Endpoints de diagnóstico con modelos Pydantic
+
+5. **Sistema de Diagnósticos**:
+   - `DiagnosticsRouter`: Router FastAPI para endpoints de diagnóstico
+   - Información del sistema y proceso
+   - Métricas de rendimiento
+   - Información de dependencias
+
+6. **APM (Application Performance Monitoring)**:
+   - `OpenTelemetryAPMProvider`: Proveedor base con OpenTelemetry
+   - Sistema de addons para integraciones externas
+   - New Relic, DataDog, Elastic APM como addons separados
+
+#### Características del Sistema
+
+- **Logging Estructurado**: Logs con campos estructurados y niveles configurables
+- **Métricas Unificadas**: Sistema unificado basado en OpenTelemetry
+- **Tracing Distribuido**: Trazabilidad completa de requests
+- **Health Checks**: Endpoints de diagnóstico y verificación de salud
+- **APM Integrado**: Monitoreo de rendimiento con addons externos
+- **Sin Variables Globales**: Uso de inyección de dependencias
+- **Modelos Pydantic**: Respuestas estructuradas para OpenAPI
+- **Integración OpenTelemetry**: Estándar de la industria para observabilidad
+
+### Sistema de Addons
+
+#### Arquitectura del Sistema de Addons
+
+El sistema de addons permite extender el framework con funcionalidades adicionales sin afectar el núcleo.
+
+#### Componentes Principales
+
+1. **Infraestructura Base**:
+   - `AddonStarter`: Protocolo para starters de addons
+   - `AddonRegistry`: Registro de addons disponibles
+   - `load_addon`: Función para cargar addons dinámicamente
+
+2. **Paquete Independiente**:
+   - `turboapi-addons`: Paquete Python independiente
+   - `pyproject.toml` separado para gestión de dependencias
+   - Dependencias opcionales para cada tipo de addon
+
+3. **Addons APM**:
+   - `BaseAPMAddon`: Clase base para addons APM
+   - `NewRelicAPMAddon`: Integración con New Relic
+   - `DataDogAPMAddon`: Integración con DataDog
+   - `ElasticAPMAddon`: Integración con Elastic APM
+
+4. **Addons OAuth2**:
+   - `BaseOAuthAddon`: Clase base para addons OAuth2
+   - `GoogleOAuthAddon`: Integración con Google OAuth2
+   - `GitHubOAuthAddon`: Integración con GitHub OAuth2
+   - `MicrosoftOAuthAddon`: Integración con Microsoft OAuth2
+
+#### Características del Sistema
+
+- **Separación del Core**: Addons independientes del framework principal
+- **Carga Dinámica**: Carga automática basada en configuración
+- **Dependencias Opcionales**: Solo instalar lo que se necesita
+- **Patrón Starter**: Integración con el sistema de starters
+- **Configuración Unificada**: Configuración a través de `pyproject.toml`
+- **Extensible**: Fácil creación de nuevos addons
+
+#### Estructura del Paquete de Addons
 
 ```
-addons/
-├── __init__.py              # Infraestructura de addons
-├── apm/                     # Addons APM
-│   ├── __init__.py
-│   ├── base.py              # Clase base para addons APM
-│   ├── newrelic.py          # NewRelicAPMAddon
-│   ├── datadog.py           # DataDogAPMAddon
-│   └── elastic.py           # ElasticAPMAddon
-└── ...
+turboapi-addons/
+├── pyproject.toml              # Configuración del paquete
+├── README.md                   # Documentación de addons
+├── turboapi_addons/
+│   ├── __init__.py            # Infraestructura base
+│   ├── base.py                # Clases base para addons
+│   ├── apm/                   # Addons APM
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── newrelic.py
+│   │   ├── datadog.py
+│   │   └── elastic.py
+│   └── oauth/                 # Addons OAuth2
+│       ├── __init__.py
+│       ├── base.py
+│       ├── google.py
+│       ├── github.py
+│       └── microsoft.py
+└── tests/                     # Tests de addons
+    └── test_oauth_addons.py
 ```
 
-**Características del Sistema de Addons:**
+#### Instalación de Addons
 
-- **Separación del Core**: Addons viven fuera de `/src`
-- **Carga Dinámica**: Se cargan automáticamente basado en configuración
-- **Dependencias Opcionales**: Solo se instalan si se usan
-- **Patrón Starter**: Usan el mismo patrón que otros starters del framework
-- **Configuración Unificada**: Se configuran desde `pyproject.toml`
+```bash
+# Instalar addons base
+pip install turboapi-addons
 
----
+# Instalar addons específicos
+pip install turboapi-addons[apm-newrelic]
+pip install turboapi-addons[oauth-google]
 
-## Herramientas de Experiencia de Desarrollador
-
-### Arquitectura de DevTools (REQ 6.x)
-
-El framework proporciona herramientas avanzadas que maximizan la productividad del desarrollador y simplifican el ciclo de desarrollo.
-
-#### Hot Reload y Desarrollo
-
-**1. Smart Hot Reload (`src/turboapi/devtools/reload.py`)**
-
-- Detección inteligente de cambios en código
-- Reload selectivo por módulos afectados
-- Preservación de estado durante reload
-- Integración con debugger
-
-**2. Development Server (`src/turboapi/devtools/server.py`)**
-
-```python
-# Comando: framework dev
-# Características:
-# - Hot reload automático
-# - Logging mejorado para desarrollo
-# - Debug mode con stacktraces detallados
-# - Live reload de configuración
+# Instalar todos los addons
+pip install turboapi-addons[all]
 ```
-
-#### Generación Automática de Documentación
-
-**1. API Documentation (`src/turboapi/devtools/docs.py`)**
-
-- Generación automática de OpenAPI/Swagger
-- Documentación interactiva con FastAPI
-- Ejemplos automáticos desde tests
-- Versionado de API documentation
-
-**2. Code Documentation**
-
-- Extracción automática de docstrings
-- Generación de documentación de arquitectura
-- Diagramas automáticos de dependencias
-
-#### Integración con Ecosistema
-
-**1. Docker Integration (`src/turboapi/devtools/docker.py`)**
-
-```dockerfile
-# Dockerfile generado automáticamente
-FROM python:3.11-slim
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
-COPY . .
-CMD ["framework", "run", "--host", "0.0.0.0"]
-```
-
-**2. Kubernetes Templates**
-
-- Manifests automáticos para deployment
-- ConfigMaps para configuración
-- Services y Ingress predefinidos
-
-**3. CI/CD Templates**
-
-```yaml
-# .github/workflows/turboapi.yml (generado)
-name: TurboAPI CI/CD
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v1
-      - run: uv sync
-      - run: uv run pytest
-      - run: uv run ruff check .
-      - run: uv run mypy .
-```
-
-#### Herramientas de Desarrollo
-
-**1. Debug Tools**
-
-- Integration con VS Code debugger
-- PyCharm plugin development
-- Interactive debugging console
-
-**2. Testing Utilities**
-
-- Test fixtures automáticos
-- Mock generators para servicios
-- Performance testing helpers
-
-**3. Migration Tools**
-
-- Framework version migration scripts
-- Automated refactoring tools
-- Deprecation warnings system
-
----
 
 ## Estado de Implementación
 
-### ✅ Funcionalidades Completadas (Épicas 1-6.1)
+### ✅ Completado
 
-**Núcleo del Framework:**
+1. **Sistema Core**: DI, configuración, descubrimiento de componentes
+2. **Capa Web**: Integración con FastAPI, decoradores, enrutamiento
+3. **Capa de Datos**: SQLAlchemy, Alembic, patrón repositorio
+4. **Sistema de Caché**: Implementaciones síncronas y asíncronas
+5. **Sistema de Tareas**: Tareas en segundo plano con decoradores
+6. **Sistema de Seguridad**: JWT, RBAC, middleware, CLI
+7. **Sistema de Observabilidad**: Logging, métricas, tracing, health checks
+8. **Sistema de Addons**: Arquitectura modular con paquete independiente
+9. **CLI del Framework**: Comandos para gestión de proyectos
+10. **Sistema de Documentación**: Estructura modular y mantenible
 
-- ✅ **Sistema de DI**: Container robusto con inyección automática
-- ✅ **Configuración**: Gestión centralizada via `pyproject.toml`
-- ✅ **Descubrimiento**: Escaneo automático de componentes
-- ✅ **Web Framework**: Integración FastAPI con decoradores
-- ✅ **Capa de Datos**: SQLAlchemy + Alembic con migraciones
-- ✅ **Sistema de Tareas**: Queue de tareas con decoradores
-- ✅ **Sistema de Caché**: Implementación completa sync/async/híbrido
-- ✅ **CLI**: Herramientas de generación y gestión
-- ✅ **Sistema de Observabilidad**: Logging, métricas, tracing, health checks
-- ✅ **Sistema de Addons**: Infraestructura para extensiones modulares
+### 🚧 En Progreso
 
-### 🎯 Funcionalidades Diseñadas (REQ 4.x, 5.x, 6.x - Listas para Implementación)
+1. **Optimizaciones de Rendimiento**: Profiling, optimizaciones de caché
+2. **Herramientas de Desarrollo**: Hot reload, debugging integrado
 
-**✅ Sistema de Seguridad:** Arquitectura completa definida, interfaces especificadas, configuración documentada
-**✅ Sistema de Observabilidad:** Stack completo implementado con OpenTelemetry + addons APM
-**✅ Herramientas DevTools:** Hot reload, documentación automática, integración ecosistema
+### 📋 Pendiente
 
-### 🚀 Próximas Épicas de Optimización
+1. **Integraciones Cloud**: AWS, GCP, Azure
+2. **Herramientas de Deployment**: Docker, Kubernetes
+3. **Ecosistema de Plugins**: Marketplace de addons
 
-**Epic 9: Performance Optimization**
+## Decisiones Técnicas Clave
 
-- ProfilerManager, CacheOptimizer, ConnectionPool, LoadTester
+### 1. Gestión de Dependencias con `uv`
 
-**Epic 10: Advanced DevTools**
+**Decisión**: Usar `uv` como gestor de dependencias principal.
 
-- IDEPlugins, DeploymentTools, MigrationTools, TestingFramework
+**Justificación**:
+
+- Velocidad superior a pip y poetry
+- Compatibilidad con estándares Python
+- Gestión de entornos virtuales integrada
+- Soporte para `pyproject.toml`
+
+### 2. Calidad de Código con Ruff y MyPy
+
+**Decisión**: Usar Ruff para linting/formateo y MyPy para tipado estático.
+
+**Justificación**:
+
+- Ruff es extremadamente rápido (100x más que flake8)
+- MyPy proporciona verificación de tipos robusta
+- Integración perfecta con `pyproject.toml`
+- Reducción de configuración manual
+
+### 3. Arquitectura Modular con Addons
+
+**Decisión**: Separar funcionalidades opcionales en addons independientes.
+
+**Justificación**:
+
+- Mantener el núcleo ligero y enfocado
+- Permitir instalación selectiva de funcionalidades
+- Facilitar el mantenimiento y actualizaciones
+- Seguir el principio de responsabilidad única
+
+### 4. Sistema de Documentación Modular
+
+**Decisión**: Organizar la documentación en módulos específicos en directorio `/docs`.
+
+**Justificación**:
+
+- Mantener el README principal conciso y enfocado
+- Facilitar la navegación y búsqueda de información
+- Permitir actualizaciones independientes por módulo
+- Mejorar la mantenibilidad a largo plazo
+- Seguir las mejores prácticas de documentación de proyectos open source
+
+### 5. Observabilidad con OpenTelemetry
+
+**Decisión**: Basar el sistema de observabilidad en OpenTelemetry.
+
+**Justificación**:
+
+- Estándar de la industria para observabilidad
+- Integración con múltiples herramientas (Prometheus, Jaeger, Grafana)
+- API unificada para métricas, logs y traces
+- Extensibilidad y compatibilidad futura
+
+---
+
+## Changelog de Versiones
+
+### v1.1 (2025-10-03)
+
+- **NUEVO**: Sistema de documentación modular en directorio `/docs`
+- **ACTUALIZADO**: Arquitectura de documentación con principios y responsabilidades
+- **ACTUALIZADO**: Estructura de documentos específicos por sistema
+- **ACTUALIZADO**: Decisiones técnicas para sistema de documentación
+
+### v1.0 (2025-10-02)
+
+- Versión inicial del DDT
+- Definición de arquitectura técnica
+- Decisiones de tecnología y implementación

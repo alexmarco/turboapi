@@ -5,370 +5,258 @@
 [![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type Check](https://img.shields.io/badge/type%20check-mypy-blue.svg)](https://mypy.readthedocs.io/)
 
-> ⚠️ **ADVERTENCIA: ESTADO ALPHA** ⚠️
-> 
-> **Este framework está en desarrollo activo y NO es recomendado para uso en producción.**
-> 
-> - La API puede cambiar sin previo aviso
-> - No hay garantías de estabilidad
-> - Faltan características críticas para producción
-> - Use bajo su propio riesgo
+> ⚠️ **WARNING: ALPHA STATUS** ⚠️
+>
+> **This framework is under active development and is NOT recommended for production use.**
+>
+> - API may change without notice
+> - No stability guarantees
+> - Missing critical production features
+> - Use at your own risk
 
-Un framework web moderno para Python inspirado en FastAPI y Django, diseñado para aplicaciones empresariales de alto rendimiento.
+A modern web framework for Python inspired by FastAPI and Django, designed for high-performance enterprise applications with a focus on Developer Experience (DX).
 
-## 🚀 Características Principales
+## 🚀 Quick Start
 
-### ✅ Núcleo del Framework (Completado)
-
-- **🔧 Inyección de dependencias** - Container DI robusto y flexible
-- **⚙️ Configuración centralizada** - Basada en `pyproject.toml`
-- **🔍 Descubrimiento automático** - Escaneo de componentes inteligente
-- **🌐 Decoradores web** - Controladores y endpoints con FastAPI
-- **💾 Capa de datos** - SQLAlchemy con migraciones Alembic
-- **⚡ Sistema de tareas** - Queue de tareas en segundo plano
-- **🗄️ Sistema de caché completo** - Síncrono, asíncrono e híbrido
-- **🖥️ CLI avanzado** - Generación de proyectos y aplicaciones
-
-### 🔐 Sistema de Seguridad (Completado)
-
-- **🔑 Autenticación JWT** - Tokens de acceso y refresh
-- **🛡️ Middleware de seguridad** - CORS, rate limiting, headers de seguridad
-- **🎭 Decoradores de autorización** - Protección de endpoints por roles y permisos
-- **🔒 Dependencias de FastAPI** - Integración nativa con el ecosistema
-
-### 📊 Sistema de Observabilidad (Completado)
-
-- **📝 Logging estructurado** - Con `structlog` y configuración avanzada
-- **📈 Métricas unificadas** - OpenTelemetry con exportación a Prometheus
-- **🔍 Trazado distribuido** - Integración completa con OpenTelemetry
-- **❤️ Health checks** - Endpoints de diagnóstico con modelos Pydantic
-- **🔌 Addons APM** - New Relic, DataDog, Elastic APM como addons separados
-
-## 📦 Instalación
-
-### Requisitos
-
-- Python 3.11+
-- [uv](https://github.com/astral-sh/uv) (recomendado) o pip
-
-### Instalación desde GitHub
+### Installation
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/alexmarco/turboapi.git
-cd turboapi
+# Install TurboAPI
+pip install turboapi
 
-# Instalar dependencias
-uv sync
-
-# Instalar dependencias de desarrollo
-uv sync --group dev
+# Or with uv (recommended)
+uv add turboapi
 ```
 
-### Instalación como dependencia
+### Create Your First Project
 
 ```bash
-# Desde GitHub (desarrollo)
-uv add git+https://github.com/alexmarco/turboapi.git
+# Create a new project
+framework new my-project
+cd my-project
 
-# O con pip
-pip install git+https://github.com/alexmarco/turboapi.git
+# Create your first app
+framework new-app users
+
+# Run the development server
+framework run
 ```
 
-## 🚀 Inicio Rápido
-
-### 1. Crear un nuevo proyecto
-
-```bash
-# Crear proyecto
-uv run framework new mi_proyecto
-cd mi_proyecto
-
-# Instalar dependencias
-uv sync
-```
-
-### 2. Crear una aplicación
-
-```bash
-# Crear aplicación
-uv run framework new-app mi_app
-```
-
-### 3. Configurar observabilidad
+### Basic Example
 
 ```python
-# pyproject.toml
-[tool.turboapi.observability]
-apm_enabled = true
-service_name = "mi_proyecto"
-environment = "development"
-version = "1.0.0"
-sample_rate = 1.0
-
-[tool.turboapi.observability.apm.newrelic]
-license_key = "your-license-key"
-app_name = "mi_proyecto"
-```
-
-### 4. Ejecutar el servidor
-
-```bash
-# Servidor de desarrollo
-uv run framework run --reload
-
-# Con configuración personalizada
-uv run framework run --host 0.0.0.0 --port 9000
-```
-
-## 📚 Documentación
-
-### Documentos Principales
-
-- **[PRD (Product Requirements Document)](docs/01-prd.md)** - Requisitos del producto
-- **[DDT (Documento de Diseño Técnico)](docs/02-ddt.md)** - Arquitectura técnica
-- **[Roadmap](docs/03-roadmap.md)** - Plan de desarrollo
-- **[CHANGELOG](CHANGELOG.md)** - Historial de cambios
-
-### Ejemplos de Uso
-
-#### Sistema de Caché
-
-```python
-from turboapi.cache import Cache, AsyncCache, SmartCache
-
-# Caché síncrono
-@Cache(ttl=300)
-def get_user_data(user_id: int):
-    return {"id": user_id, "name": "Usuario"}
-
-# Caché asíncrono
-@AsyncCache(ttl=600)
-async def fetch_api_data(url: str):
-    # Lógica asíncrona
-    return await api_call(url)
-
-# Caché inteligente (automático)
-@SmartCache
-def expensive_calculation(data: dict):
-    return complex_processing(data)
-```
-
-#### Sistema de Seguridad
-
-```python
+# apps/users/api.py
+from turboapi.web import Controller, Get, Post
 from turboapi.security import Authenticate, RequireRole
-from turboapi.security.dependencies import get_current_user
 
-@Authenticate
-@RequireRole("admin")
-async def admin_endpoint(user: User = Depends(get_current_user)):
-    return {"message": f"Hola {user.name}"}
+@Controller("/users")
+class UserController:
+    
+    @Get("/")
+    async def list_users(self) -> dict:
+        return {"users": []}
+    
+    @Post("/")
+    @Authenticate()
+    @RequireRole("admin")
+    async def create_user(self, user_data: dict) -> dict:
+        return {"message": "User created", "user": user_data}
 ```
 
-#### Observabilidad
+## 📚 Documentation
 
-```python
-from turboapi.observability import get_logger, get_metrics_collector
+Our documentation is organized in modular sections for easy navigation:
 
-# Logging estructurado
-logger = get_logger(__name__)
-logger.info("Operación completada", user_id=123, action="login")
+### 📋 Project Documentation
 
-# Métricas
-metrics = get_metrics_collector()
-metrics.increment_counter("requests_total", {"endpoint": "/api/users"})
+- **[Product Requirements Document (PRD)](docs/01-prd.md)** - Product vision and requirements
+- **[Technical Design Document (DDT)](docs/02-ddt.md)** - Technical architecture and decisions
+- **[Development Roadmap](docs/03-roadmap.md)** - Development plan and progress
+
+### 🚀 Getting Started
+
+- **[Quick Start Guide](docs/04-getting-started.md)** - Installation and first project
+- **[Examples](docs/14-examples.md)** - Practical usage examples
+- **[API Reference](docs/15-api-reference.md)** - Complete API documentation
+
+### 🔧 System Documentation
+
+- **[Core System](docs/05-core-system.md)** - Dependency injection and configuration
+- **[Web Layer](docs/06-web-layer.md)** - FastAPI integration and routing
+- **[Data Layer](docs/07-data-layer.md)** - Database and repository pattern
+- **[Security System](docs/08-security-system.md)** - Authentication and authorization
+- **[Observability System](docs/09-observability-system.md)** - Logging, metrics, and tracing
+- **[Cache System](docs/11-cache-system.md)** - Caching strategies and decorators
+- **[Task System](docs/12-task-system.md)** - Background task processing
+- **[Addons System](docs/13-addons-system.md)** - Extending the framework
+
+### 🛠️ Development Tools
+
+- **[CLI Tools](docs/10-cli-tools.md)** - Command-line interface
+- **[Troubleshooting](docs/16-troubleshooting.md)** - Common issues and solutions
+
+## ✨ Key Features
+
+### 🏗️ Framework Core
+
+- **🔧 Dependency Injection** - Robust and flexible DI container
+- **⚙️ Centralized Configuration** - Based on `pyproject.toml`
+- **🔍 Automatic Discovery** - Intelligent component scanning
+- **🌐 Web Decorators** - Controllers and endpoints with FastAPI
+- **💾 Data Layer** - SQLAlchemy with Alembic migrations
+- **⚡ Task System** - Background task queue
+- **🗄️ Cache System** - Synchronous, asynchronous and hybrid caching
+- **🖥️ CLI Tools** - Project and application generation
+
+### 🔐 Security System
+
+- **🔑 JWT Authentication** - Access and refresh tokens
+- **🛡️ Security Middleware** - CORS, rate limiting, security headers
+- **🎭 RBAC Authorization** - Role-based access control
+- **🔒 Session Management** - Granular session control
+- **🔌 OAuth2 Addons** - Google, GitHub, Microsoft integration
+
+### 📊 Observability System
+
+- **📝 Structured Logging** - With `structlog` and advanced configuration
+- **📈 Unified Metrics** - OpenTelemetry with Prometheus export
+- **🔍 Distributed Tracing** - Complete OpenTelemetry integration
+- **❤️ Health Checks** - Diagnostic endpoints with Pydantic models
+- **🔌 APM Addons** - New Relic, DataDog, Elastic APM as separate addons
+
+### 🔌 Extensibility
+
+- **📦 Addon System** - Modular extensions for APM and OAuth2
+- **🎯 Plugin Architecture** - Easy integration of third-party services
+- **⚙️ Configuration Driven** - Enable features through configuration
+
+## 🏗️ Architecture
+
+TurboAPI follows a modular architecture with clear separation of concerns:
+
 ```
-
-## 🛠️ Desarrollo
-
-### Configuración del entorno
-
-```bash
-# Instalar dependencias
-uv sync
-
-# Instalar dependencias de desarrollo
-uv sync --group dev
-```
-
-### Quality Gates Obligatorios
-
-Antes de cada commit, ejecuta esta secuencia completa:
-
-```bash
-# 1. Formatear código
-uv run ruff format .
-
-# 2. Corregir errores de linting
-uv run ruff check . --fix
-
-# 3. Verificar tipado estático
-uv run mypy .
-
-# 4. Ejecutar pruebas
-uv run pytest
-```
-
-### Comandos de desarrollo
-
-```bash
-# Ejecutar tests
-uv run pytest
-
-# Tests con cobertura
-uv run pytest --cov=src --cov-report=html
-
-# Linting
-uv run ruff check .
-
-# Formateo
-uv run ruff format .
-
-# Verificación de tipos
-uv run mypy .
-
-# CLI del framework
-uv run framework --help
-```
-
-### Estructura del proyecto
-
-```
-turboapi/
-├── src/turboapi/           # Código fuente del framework
-│   ├── core/               # Núcleo del framework
-│   ├── web/                # Componentes web
-│   ├── data/               # Capa de datos
-│   ├── cache/              # Sistema de caché
-│   ├── security/           # Sistema de seguridad
-│   ├── observability/      # Sistema de observabilidad
-│   └── cli/                # CLI del framework
-├── addons/                 # Addons del framework
-│   └── apm/                # Addons de APM
-├── tests/                  # Pruebas unitarias
-├── docs/                   # Documentación
-├── pyproject.toml          # Configuración del proyecto
-└── README.md               # Este archivo
+src/turboapi/
+├── core/           # DI, configuration, discovery
+├── web/            # FastAPI integration, routing
+├── data/           # Database, migrations, repositories
+├── security/       # Authentication, authorization, middleware
+├── observability/  # Logging, metrics, tracing, health checks
+├── cache/          # Caching system and decorators
+├── tasks/          # Background task processing
+└── cli/            # Command-line tools
 ```
 
 ## 🧪 Testing
 
-El proyecto incluye 495 tests unitarios que cubren:
-
-- ✅ Sistema de caché (síncrono, asíncrono, híbrido)
-- ✅ Sistema de seguridad (JWT, middleware, decoradores)
-- ✅ Sistema de observabilidad (logging, métricas, tracing)
-- ✅ Inyección de dependencias
-- ✅ Configuración y CLI
-- ✅ Integración con FastAPI
-
 ```bash
-# Ejecutar todos los tests
+# Run all tests
 uv run pytest
 
-# Tests específicos
-uv run pytest tests/test_observability_*.py
+# Run with coverage
+uv run pytest --cov=src/turboapi
 
-# Tests con verbose
-uv run pytest -v
-
-# Tests con cobertura
-uv run pytest --cov=src --cov-report=term-missing
+# Run specific test categories
+uv run pytest tests/test_security/
+uv run pytest tests/test_observability/
 ```
 
-## 🔧 Configuración
+## 🚀 Development
 
-### pyproject.toml
+### Setup Development Environment
 
-```toml
-[project]
-name = "mi-proyecto"
-version = "0.1.0"
-description = "Mi proyecto con TurboAPI"
-requires-python = ">=3.11"
-dependencies = [
-    "turboapi",
-    "fastapi",
-    "uvicorn[standard]",
-]
+```bash
+# Clone the repository
+git clone https://github.com/alexmarco/turboapi.git
+cd turboapi
 
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
-]
+# Install dependencies
+uv sync
 
-[tool.turboapi]
-installed_apps = ["mi_app"]
+# Run tests
+uv run pytest
 
-[tool.turboapi.observability]
-apm_enabled = true
-service_name = "mi-proyecto"
-environment = "development"
-version = "0.1.0"
-sample_rate = 1.0
-
-[tool.turboapi.observability.apm.newrelic]
-license_key = "your-license-key"
-app_name = "mi-proyecto"
+# Run linting
+uv run ruff format .
+uv run ruff check . --fix
+uv run mypy .
 ```
 
-## 🤝 Contribuir
+### Quality Gates
 
-### Flujo de trabajo
+Before committing, ensure all quality gates pass:
 
-1. **Fork** el repositorio
-2. **Crear** una rama feature: `git checkout -b feature/nueva-funcionalidad`
-3. **Desarrollar** siguiendo las reglas de calidad
-4. **Ejecutar** quality gates antes de commit
-5. **Crear** Pull Request hacia `develop`
+```bash
+# 1. Format code
+uv run ruff format .
 
-### Reglas de desarrollo
+# 2. Fix linting issues
+uv run ruff check . --fix
 
-- ✅ **Quality Gates obligatorios** antes de cada commit
-- ✅ **Commits convencionales** (feat, fix, docs, etc.)
-- ✅ **Tipado estático** con MyPy
-- ✅ **Formateo** con Ruff
-- ✅ **Tests** para nueva funcionalidad
-- ✅ **Documentación** actualizada
+# 3. Type checking
+uv run mypy .
 
-### Estándares de código
+# 4. Run tests
+uv run pytest
+```
 
-- **Python 3.11+** con tipos modernos (`str | None` en lugar de `Optional[str]`)
-- **Ruff** para linting y formateo
-- **MyPy** para verificación de tipos
-- **Pytest** para testing
-- **Conventional Commits** para mensajes de commit
+## 📊 Project Status
 
-## 📄 Licencia
+### ✅ Completed Systems (9/11)
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+- Core Framework (DI, Configuration, Discovery)
+- Web Layer (FastAPI Integration, Routing)
+- Data Layer (SQLAlchemy, Migrations, Repositories)
+- CLI Tools (Project Generation, Commands)
+- Task System (Background Processing)
+- Cache System (Synchronous, Asynchronous, Hybrid)
+- Security System (JWT, RBAC, Middleware, OAuth2)
+- Observability System (Logging, Metrics, Tracing, Health Checks)
+- Documentation System (Modular Documentation)
 
-## 🆘 Soporte
+### 🚧 In Progress
 
-### Estado del proyecto
+- Performance Optimizations
+- Advanced Development Tools
 
-- **Versión actual**: 1.0.0 (Alpha)
-- **Estado**: En desarrollo activo
-- **Uso en producción**: ❌ No recomendado
+### 📋 Planned
 
-### Recursos
+- Cloud Integrations (AWS, GCP, Azure)
+- Deployment Tools (Docker, Kubernetes)
+- Plugin Ecosystem
 
-- 📖 [Documentación](docs/)
-- 🐛 [Issues](https://github.com/alexmarco/turboapi/issues)
-- 💬 [Discussions](https://github.com/alexmarco/turboapi/discussions)
-- 📋 [Roadmap](docs/03-roadmap.md)
+## 🤝 Contributing
 
-### Contacto
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-- **Autor**: Alejandro Marco Ramos
-- **Email**: alejandro.marco.ramos@gmail.com
-- **GitHub**: [@alexmarco](https://github.com/alexmarco)
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run quality gates
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [FastAPI](https://fastapi.tiangolo.com/) - For the excellent web framework foundation
+- [Django](https://www.djangoproject.com/) - For architectural inspiration
+- [Spring Boot](https://spring.io/projects/spring-boot) - For the developer experience philosophy
+- [OpenTelemetry](https://opentelemetry.io/) - For the observability standards
+
+## 📞 Support
+
+- 📖 [Documentation](docs/) - Comprehensive guides and references
+- 🐛 [Issues](https://github.com/alexmarco/turboapi/issues) - Report bugs and request features
+- 💬 [Discussions](https://github.com/alexmarco/turboapi/discussions) - Community discussions
+- 📧 [Contact](mailto:alexmarco@example.com) - Direct contact for questions
 
 ---
 
+<<<<<<< HEAD
 <div align="center">
 
 **⚠️ RECUERDA: Este framework está en estado ALPHA y NO es recomendado para producción ⚠️**
@@ -377,3 +265,6 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 [![Email](https://img.shields.io/badge/Email-alejandro.marco.ramos@gmail.com-D14836?style=flat&logo=gmail)](mailto:alejandro.marco.ramos@gmail.com)
 
 </div>
+=======
+**Made with ❤️ for the Python community**
+>>>>>>> master

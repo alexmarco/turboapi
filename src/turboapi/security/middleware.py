@@ -68,7 +68,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         # Procesar la request
         response = await call_next(request)
 
-        # Añadir headers de seguridad si está habilitado
+        # Add security headers if enabled
         if self.add_security_headers:
             self._add_security_headers(response)
 
@@ -89,16 +89,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         # Prevenir carga en frames (clickjacking)
         response.headers["X-Frame-Options"] = "DENY"
 
-        # Habilitar protección XSS del navegador
+        # Enable browser XSS protection
         response.headers["X-XSS-Protection"] = "1; mode=block"
 
-        # Forzar HTTPS en producción (configurable)
+        # Force HTTPS in production (configurable)
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         # Controlar referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-        # Content Security Policy básica
+        # Basic Content Security Policy
         response.headers["Content-Security-Policy"] = "default-src 'self'"
 
 
@@ -180,7 +180,7 @@ class CORSSecurityMiddleware(BaseHTTPMiddleware):
         else:
             response = await call_next(request)
 
-        # Añadir headers CORS si el origen está permitido
+        # Add CORS headers if origin is allowed
         if origin and self._is_origin_allowed(origin):
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Methods"] = ", ".join(self.allowed_methods)
@@ -268,7 +268,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else "unknown"
         current_time = time.time()
 
-        # Limpiar requests antiguos (más de 1 minuto)
+        # Clean old requests (more than 1 minute)
         if client_ip in self.request_counts:
             self.request_counts[client_ip] = [
                 req_time
@@ -278,7 +278,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         else:
             self.request_counts[client_ip] = []
 
-        # Verificar límite
+        # Check limit
         if len(self.request_counts[client_ip]) >= self.requests_per_minute:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
@@ -328,11 +328,11 @@ def setup_security_middleware(
     ...     rate_limit_rpm=100
     ... )
     """
-    # Añadir middleware de rate limiting (primero)
+    # Add rate limiting middleware (first)
     if rate_limit_rpm > 0:
         app.add_middleware(RateLimitMiddleware, requests_per_minute=rate_limit_rpm)
 
-    # Añadir middleware de CORS si se especifican orígenes
+    # Add CORS middleware if origins are specified
     if cors_origins:
         app.add_middleware(
             CORSSecurityMiddleware,
@@ -340,7 +340,7 @@ def setup_security_middleware(
             allow_credentials=True,
         )
 
-    # Añadir middleware de seguridad principal (último)
+    # Add main security middleware (last)
     app.add_middleware(
         SecurityMiddleware,
         auth_provider=auth_provider,

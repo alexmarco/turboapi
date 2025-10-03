@@ -1,4 +1,4 @@
-"""Módulo de seguridad y autenticación de TurboAPI."""
+"""Security and authentication module for TurboAPI."""
 
 from .decorators import RequireAuth
 from .decorators import RequirePermission
@@ -29,12 +29,20 @@ from .middleware import CORSSecurityMiddleware
 from .middleware import RateLimitMiddleware
 from .middleware import SecurityMiddleware
 from .middleware import setup_security_middleware
+from .rbac import InMemoryRBACManager
+from .session import BaseSessionManager
+from .session import InMemorySessionManager
+from .session import SessionData
 
 __all__ = [
     # Interfaces
     "BaseAuthProvider",
     "BaseTokenManager",
     "BaseRBACManager",
+    "InMemoryRBACManager",
+    "BaseSessionManager",
+    "InMemorySessionManager",
+    "SessionData",
     "AuthResult",
     "TokenPayload",
     "User",
