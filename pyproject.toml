@@ -44,12 +44,17 @@ dev = [
     "coverage",
     "httpx",          # Para TestClient
 ]
-# APM Addons
-apm-newrelic = ["newrelic"]
-apm-datadog = ["ddtrace"]
-apm-elastic = ["elastic-apm"]
-# All APM addons
-apm-all = ["newrelic", "ddtrace", "elastic-apm"]
+# APM Addons (moved to turboapi-addons package)
+# apm-newrelic = ["newrelic"]
+# apm-datadog = ["ddtrace"]
+# apm-elastic = ["elastic-apm"]
+# apm-all = ["newrelic", "ddtrace", "elastic-apm"]
+
+# OAuth2 Addons (moved to turboapi-addons package)
+# oauth-google = ["aiohttp>=3.8.0"]
+# oauth-github = ["aiohttp>=3.8.0"]
+# oauth-microsoft = ["aiohttp>=3.8.0"]
+# oauth-all = ["aiohttp>=3.8.0"]
 
 [tool.ruff]
 # Longitud de línea máxima, compatible con Black.

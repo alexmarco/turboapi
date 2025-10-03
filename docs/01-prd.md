@@ -1,8 +1,9 @@
 ---
-Version: 1.0
-Date: 2025-10-02
+Version: 1.1
+Date: 2025-10-03
 Autor: Alejandro Marco Ramos
 ---
+
 # PRD: Framework Python Orientado a la DX
 
 ## 1. Introducción y Visión del Producto
@@ -48,56 +49,133 @@ Crear un framework de desarrollo en Python, inspirado en los principios de Sprin
 
 ### 3.3. REQ3: Módulos Centrales (Starters)
 
-* REQ 3.1 - Ejecutor de Tareas en Segundo Plano: El sistema debe incluir un módulo para ejecutar tareas asíncronas sin requerir dependencias externas complejas.
+* REQ 3.1 - Starter Web: Módulo que integre FastAPI y proporcione decoradores para controladores REST.
 
-* REQ 3.2 - Sistema de Caché: Se debe ofrecer un sistema de caché con soporte para funciones síncronas y asíncronas, configurable mediante decoradores.
+* REQ 3.2 - Starter de Datos: Módulo que configure SQLAlchemy, Alembic y el patrón repositorio.
 
-### 3.4. REQ4: Seguridad
+* REQ 3.3 - Starter de Tareas: Módulo para ejecutar tareas en segundo plano de forma asíncrona.
 
-* REQ 4.1 - Autenticación y Autorización: El framework debe incluir módulos para autenticación (JWT, OAuth2) y un sistema de Control de Acceso Basado en Roles (RBAC).
+* REQ 3.4 - Starter de Caché: Módulo que proporcione un sistema de caché configurable (memoria, Redis).
 
-* REQ 4.2 - Seguridad por Defecto: Se deben habilitar por defecto headers de seguridad, políticas CORS y protección contra ataques comunes.
+### 3.4. REQ4: Sistema de Seguridad y Autenticación
 
-### 3.5. REQ 2: Observabilidad
+* REQ 4.1 - Autenticación JWT: Sistema completo de autenticación con tokens JWT y refresh tokens.
 
-* REQ 5.1 - Logging y Métricas: El sistema debe generar logs estructurados y exponer métricas compatibles con Prometheus de forma automática.
+* REQ 4.2 - Autorización RBAC: Sistema de roles y permisos (Role-Based Access Control).
 
-* REQ 5.2 - Trazabilidad: Debe integrarse con OpenTelemetry para permitir la trazabilidad distribuida en arquitecturas de microservicios.
+* REQ 4.3 - Middleware de Seguridad: Headers de seguridad, CORS, rate limiting.
 
-* REQ 5.3 - Health Checks: Debe proporcionar un endpoint de health check para monitorear el estado de la aplicación.
+* REQ 4.4 - Integración OAuth2: Soporte para proveedores OAuth2 (Google, GitHub, etc.).
 
-### 3.6. REQ 3: Experiencia de Desarrollador (DX)
+### 3.5. REQ5: Sistema de Observabilidad
 
-* REQ 6.1 - Hot Reload: El servidor de desarrollo debe reiniciarse automáticamente al detectar cambios en el código.
+* REQ 5.1 - Logging Estructurado: Sistema de logging con niveles configurables y formato estructurado.
 
-* REQ 6.2 - Generación de Documentación: El framework debe ser capaz de generar documentación de API de forma automática a partir del código.
+* REQ 5.2 - Métricas: Sistema unificado de métricas con exportación a Prometheus.
 
-* REQ 6.3 - Integración con Ecosistema: Se deben facilitar plantillas y guías para la integración con Docker, Kubernetes y sistemas de CI/CD.
+* REQ 5.3 - Trazabilidad: Trazabilidad distribuida integrada.
 
-## 4. Casos de Uso Clave
+* REQ 5.4 - Health Checks: Endpoints de diagnóstico y health checks.
 
-### Caso de Uso 1: Creación de un CRUD API en minutos
+### 3.6. REQ6: Sistema de Documentación
 
-* Usuario: Un desarrollador.
+* REQ 6.1 - Documentación Modular: El framework debe proporcionar documentación organizada en módulos específicos para facilitar la comprensión y mantenimiento.
 
-* Acción: Utiliza el CLI para crear un nuevo proyecto y una nueva "app".
+* REQ 6.2 - Estructura de Documentación: La documentación debe estar organizada en:
+  * Documento principal (README.md) con información general y enlaces
+  * Documentos específicos por módulo en directorio `/docs`
+  * Documentación técnica detallada (DDT)
+  * Roadmap de desarrollo actualizado
+  * Guías de usuario y ejemplos de uso
 
-* Resultado: En pocos minutos, define un modelo con SQLModel, un @Controller y un @Service. El framework gestiona automáticamente las rutas, la conexión a la base de datos y la inyección de dependencias, exponiendo una API RESTful funcional.
+* REQ 6.3 - Mantenibilidad: La documentación debe ser fácil de mantener y actualizar, con estructura clara que permita agregar nuevos módulos sin afectar la organización general.
 
-### Caso de Uso 2: Añadir una tarea en segundo plano
+## 4. Arquitectura del Sistema
 
-* Usuario: Un desarrollador necesita procesar una tarea pesada sin bloquear la respuesta de la API.
+### 4.1. Componentes Principales
 
-* Acción: Define una función y la decora como una tarea asíncrona usando el starter correspondiente.
+* **Core Framework**: Motor de inyección de dependencias, configuración y descubrimiento de componentes.
+* **Web Layer**: Integración con FastAPI, decoradores y enrutamiento.
+* **Data Layer**: ORM, migraciones y patrón repositorio.
+* **Security Layer**: Autenticación, autorización y middleware de seguridad.
+* **Observability Layer**: Logging, métricas, tracing y health checks.
+* **CLI Tools**: Herramientas de línea de comandos para gestión del proyecto.
 
-* Resultado: La tarea se ejecuta en segundo plano de manera fiable, sin necesidad de configurar un sistema de colas complejo como Celery o RQ.
+### 4.2. Patrones Arquitectónicos
 
-## 5. Restricciones y Asunciones
+* **Dependency Injection**: Contenedor DI para gestión de dependencias.
+* **Component Discovery**: Escaneo automático de componentes en aplicaciones.
+* **Repository Pattern**: Abstracción del acceso a datos.
+* **Starter Pattern**: Módulos configurables para funcionalidades específicas.
 
-Restricción 1: La primera versión del framework se centrará exclusivamente en el ecosistema asíncrono de Python (ASGI).
+## 5. Criterios de Éxito
 
-Restricción 2: Las implementaciones por defecto de caché y tareas en segundo plano serán soluciones "en memoria" para simplificar el arranque, recomendando soluciones externas para producción.
+### 5.1. Métricas Técnicas
 
-Asunción 1: Los desarrolladores que adopten el framework están dispuestos a seguir la arquitectura modular propuesta.
+* Tiempo de setup de proyecto: < 5 minutos
+* Cobertura de tests: > 90%
+* Tiempo de build: < 30 segundos
+* Latencia de API: < 100ms para operaciones básicas
 
-Asunción 2: El framework no buscará reemplazar a Django o FastAPI, sino ocupar un nicho intermedio enfocado en la DX y la arquitectura estructurada.
+### 5.2. Métricas de Experiencia de Desarrollador
+
+* Curva de aprendizaje: < 2 horas para primer proyecto funcional
+* Reducción de boilerplate: > 70% comparado con FastAPI puro
+* Satisfacción del desarrollador: > 4.5/5 en encuestas
+
+## 6. Restricciones y Limitaciones
+
+* Compatibilidad: Python 3.11+
+* Dependencias: Minimizar dependencias externas
+* Performance: No degradar rendimiento vs FastAPI puro
+* Compatibilidad: Mantener compatibilidad con ecosistema Python existente
+
+## 7. Roadmap de Implementación
+
+### Fase 1: Núcleo (Completada)
+
+- Sistema de DI y configuración
+* CLI básico
+* Descubrimiento de componentes
+
+### Fase 2: Capas Fundamentales (Completada)
+
+- Capa web con FastAPI
+* Capa de datos con SQLAlchemy
+* Sistema de caché
+* Sistema de tareas
+
+### Fase 3: Seguridad y Observabilidad (Completada)
+
+- Autenticación JWT
+* Sistema RBAC
+* Logging, métricas y tracing
+* Health checks
+
+### Fase 4: Documentación y Optimización (En progreso)
+
+- Reestructuración de documentación
+* Optimizaciones de rendimiento
+* Herramientas de desarrollo avanzadas
+
+### Fase 5: Ecosistema (Futuro)
+
+- Addons y plugins
+* Integraciones con servicios cloud
+* Herramientas de deployment
+
+---
+
+## Changelog de Versiones
+
+### v1.1 (2025-10-03)
+
+- **NUEVO**: Requisito REQ6 para sistema de documentación modular
+* **ACTUALIZADO**: Estructura de documentación en directorio `/docs`
+* **ACTUALIZADO**: Roadmap de implementación con fases completadas
+
+### v1.0 (2025-10-02)
+
+- Versión inicial del PRD
+* Definición de requisitos fundamentales
+* Arquitectura base del sistema

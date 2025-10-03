@@ -7,6 +7,7 @@ from typing import Annotated
 
 import typer
 
+from .security import app as security_app
 from .templates import AppGenerator
 from .templates import ProjectGenerator
 
@@ -228,6 +229,13 @@ def cache(
     except Exception as e:
         typer.echo(f"[ERROR] Error al gestionar caché: {e}", err=True)
         raise typer.Exit(1) from e
+
+
+@app.command()
+def security() -> None:
+    """Security management commands for users, roles, and permissions."""
+    # This command is handled by the security sub-app
+    security_app()
 
 
 if __name__ == "__main__":

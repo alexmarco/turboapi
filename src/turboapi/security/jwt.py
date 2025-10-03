@@ -1,4 +1,4 @@
-"""Implementación JWT del sistema de autenticación."""
+"""JWT implementation of the authentication system."""
 
 import time
 from datetime import datetime
@@ -27,7 +27,7 @@ class PasswordHandler:
 
     def __init__(self) -> None:
         """Inicializar el contexto de hashing con bcrypt."""
-        # Usar bcrypt directamente para evitar problemas de detección de bugs de passlib
+        # Use bcrypt directly to avoid passlib bug detection issues
         pass
 
     def hash_password(self, password: str) -> str:
@@ -44,7 +44,7 @@ class PasswordHandler:
         str
             Hash de la contraseña.
         """
-        # Truncar contraseña a 72 bytes para bcrypt
+        # Truncate password to 72 bytes for bcrypt
         password_bytes = password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
@@ -69,7 +69,7 @@ class PasswordHandler:
         bool
             True si la contraseña es correcta.
         """
-        # Truncar contraseña a 72 bytes para bcrypt
+        # Truncate password to 72 bytes for bcrypt
         password_bytes = plain_password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
@@ -135,7 +135,7 @@ class JWTTokenManager(BaseTokenManager):
             "iat": int(now.timestamp()),
             "exp": int(expire.timestamp()),
             "type": "access",
-            "jti": f"{int(time.time_ns())}",  # JWT ID único usando nanosegundos
+            "jti": f"{int(time.time_ns())}",  # Unique JWT ID using nanoseconds
         }
 
         return jwt.encode(jwt_payload, self.secret, algorithm=self.algorithm)
@@ -162,7 +162,7 @@ class JWTTokenManager(BaseTokenManager):
             "iat": int(now.timestamp()),
             "exp": int(expire.timestamp()),
             "type": "refresh",
-            "jti": f"{int(time.time_ns())}",  # JWT ID único usando nanosegundos
+            "jti": f"{int(time.time_ns())}",  # Unique JWT ID using nanoseconds
         }
 
         return jwt.encode(jwt_payload, self.secret, algorithm=self.algorithm)
@@ -187,7 +187,7 @@ class JWTTokenManager(BaseTokenManager):
             Si el token es inválido.
         """
         try:
-            # Verificar si el token está en la blacklist
+            # Check if token is in blacklist
             if token in self._blacklisted_tokens:
                 raise InvalidTokenError("Token has been revoked")
 
@@ -250,7 +250,7 @@ class JWTTokenManager(BaseTokenManager):
             Si el token es inválido.
         """
         try:
-            # Verificar si el token está en la blacklist
+            # Check if token is in blacklist
             if token in self._blacklisted_tokens:
                 raise InvalidTokenError("Token has been revoked")
 
@@ -349,14 +349,14 @@ class JWTAuthProvider(BaseAuthProvider):
             if not user:
                 return AuthResult(success=False, error_message="Invalid credentials")
 
-            # Verificar que el usuario esté activo
+            # Verify that user is active
             if not user.is_active:
                 return AuthResult(success=False, error_message="User account is inactive")
 
-            # Verificar contraseña (asumimos que el user tiene un campo password_hash)
+            # Verify password (we assume user has a password_hash field)
             if not hasattr(user, "password_hash"):
-                # Para las pruebas, asumimos que la verificación es exitosa
-                # En implementación real, esto vendría del repositorio
+                # For tests, we assume verification is successful
+                # In real implementation, this would come from the repository
                 if not self.password_handler.verify_password(password, "hashed_password"):
                     return AuthResult(success=False, error_message="Invalid credentials")
             else:
@@ -374,7 +374,7 @@ class JWTAuthProvider(BaseAuthProvider):
             access_token = self.token_manager.generate_access_token(token_payload)
             refresh_token = self.token_manager.generate_refresh_token(user.id)
 
-            # Calcular expiración
+            # Calculate expiration
             expires_at = datetime.now(timezone.utc) + timedelta(
                 minutes=self.config.get("access_token_expire_minutes", 30)
             )

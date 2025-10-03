@@ -1,4 +1,4 @@
-"""Módulo de observabilidad de TurboAPI."""
+"""Observability module for TurboAPI."""
 
 from .apm import APMConfig
 from .apm import APMManager
