@@ -298,7 +298,7 @@ class TurboLogging:
             cache_logger_on_first_use=True,
         )
 
-        # Configurar logging estándar
+        # Configure standard logging
         logging.basicConfig(
             level=getattr(logging, self.config.level.value), format="%(message)s", force=True
         )
@@ -331,7 +331,7 @@ class TurboLogging:
         if not self._configured:
             self.configure()
 
-        # Combinar campos extra de la configuración con los específicos
+        # Combine extra fields from configuration with specific ones
         combined_extra_fields = self.config.extra_fields.copy()
         if extra_fields:
             combined_extra_fields.update(extra_fields)
@@ -339,8 +339,8 @@ class TurboLogging:
         return StructuredLogger(name, combined_extra_fields)
 
 
-# Funciones de conveniencia para compatibilidad con código existente
-# Estas funciones están deprecadas y se recomienda usar inyección de dependencias
+# Convenience functions for compatibility with existing code
+# These functions are deprecated and dependency injection is recommended
 
 
 def configure_logging(config: LoggingConfig) -> TurboLogging:

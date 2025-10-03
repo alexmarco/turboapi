@@ -27,7 +27,7 @@ class RequireAuth:
     """
 
     def __init__(self) -> None:
-        """Inicializar el decorador de autenticación."""
+        """Initialize the authentication decorator."""
         pass
 
     def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
@@ -47,11 +47,11 @@ class RequireAuth:
 
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Esta implementación será completada en la integración con FastAPI
-            # Por ahora, solo preservamos la función original
+            # This implementation will be completed in FastAPI integration
+            # For now, we only preserve the original function
             return await func(*args, **kwargs)
 
-        # Añadir metadata de seguridad
+        # Add security metadata
         wrapper._requires_auth = True  # type: ignore
         wrapper._call_with_auth = self._call_with_auth  # type: ignore
 
@@ -155,18 +155,18 @@ class RequireRole:
             # Esta implementación será completada en la integración con FastAPI
             return await func(*args, **kwargs)
 
-        # Añadir metadata de seguridad
+        # Add security metadata
         wrapper._required_roles = self.required_roles  # type: ignore
         wrapper._call_with_user = self._call_with_user  # type: ignore
 
-        # Si ya hay un _call_with_user de otro decorador, crear una función combinada
+        # If there's already a _call_with_user from another decorator, create a combined function
         if hasattr(func, "_call_with_user"):
             original_call = func._call_with_user
 
             async def combined_call(user: User) -> Any:
-                # Ejecutar verificación del decorador original
+                # Execute verification from original decorator
                 await original_call(user)
-                # Ejecutar nuestra verificación
+                # Execute our verification
                 return await self._call_with_user(user)
 
             wrapper._call_with_user = combined_call  # type: ignore
@@ -263,18 +263,18 @@ class RequirePermission:
             # Esta implementación será completada en la integración con FastAPI
             return await func(*args, **kwargs)
 
-        # Añadir metadata de seguridad
+        # Add security metadata
         wrapper._required_permissions = self.required_permissions  # type: ignore
         wrapper._call_with_user = self._call_with_user  # type: ignore
 
-        # Si ya hay un _call_with_user de otro decorador, crear una función combinada
+        # If there's already a _call_with_user from another decorator, create a combined function
         if hasattr(func, "_call_with_user"):
             original_call = func._call_with_user
 
             async def combined_call(user: User) -> Any:
-                # Ejecutar verificación del decorador original
+                # Execute verification from original decorator
                 await original_call(user)
-                # Ejecutar nuestra verificación
+                # Execute our verification
                 return await self._call_with_user(user)
 
             wrapper._call_with_user = combined_call  # type: ignore

@@ -138,12 +138,14 @@ def process_data(items: list[str], config: dict[str, int] | None) -> str | None:
 
 ## 4. Documentación y Comentarios
 
+- **Idioma**: Todos los comentarios y docstrings deben estar en **inglés**.
 - **Docstrings**:
   - Escribe docstrings para todos los módulos, clases y funciones públicas, siguiendo el [estilo de numpy](https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy).
   - Incluye una sección de ejemplos en funciones y métodos.
   - Añade los docstrings de `NamedTuple` y `dataclass` debajo de la definición de la clase.
 - **Comentarios**:
   - Añade comentarios solo para explicar el *porqué* de una decisión compleja, no el *qué* hace el código. El código debe de poder explicarse por si solo.
+  - Todos los comentarios deben estar en inglés.
 
 ## 5. Gestión de Proyecto con `uv`
 

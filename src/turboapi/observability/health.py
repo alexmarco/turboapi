@@ -1,4 +1,4 @@
-"""Sistema de health checks y endpoints de diagnóstico para TurboAPI."""
+"""Health checks system and diagnostic endpoints for TurboAPI."""
 
 import asyncio
 import time
@@ -60,7 +60,7 @@ class HealthCheckResponse(BaseModel):
     summary: dict[str, int]
 
     class Config:
-        """Configuración de Pydantic."""
+        """Pydantic configuration."""
 
         use_enum_values = True
 
@@ -86,7 +86,7 @@ class BaseHealthCheck:
         ...         super().__init__("database")
         ...
         ...     async def check(self) -> HealthCheckResult:
-        ...         # Implementar verificación de base de datos
+        ...         # Implement database verification
         ...         pass
         """
         self.name = name
@@ -479,8 +479,8 @@ class HealthChecker:
         return None
 
 
-# Funciones de conveniencia para compatibilidad con código existente
-# Estas funciones están deprecadas y se recomienda usar inyección de dependencias
+# Convenience functions for compatibility with existing code
+# These functions are deprecated and dependency injection is recommended
 
 
 def configure_health_checks(version: str = "0.1.0") -> HealthChecker:
