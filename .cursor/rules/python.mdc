@@ -1,0 +1,417 @@
+---
+alwaysApply: true
+---
+# 📚 Reglas de Codificación para el lenguage python
+
+Este documento define las directrices que debes seguir.
+
+## 1. Herramientas y Calidad de Código 🛠️
+
+- **Gestor de Paquetes y Entorno**: Tienes que usar `uv` para cualquier operación relacionada con las dependencias o el entorno virtual.
+- **Calidad de código**:
+  - **Linting y Formateo**: `Ruff` es la herramienta principal. Antes de finalizar cualquier cambio de código, ejecuta `uv run ruff format .` y `uv run ruff check . --fix`.
+  - **Tipado Estático**: `Mypy` es obligatorio. Todo el código nuevo debe tener tipos estrictos. Ejecuta `uv run mypy .` para verificar los cambios.
+- **Testing**: `pytest` es el framework de pruebas. Todas las nuevas funcionalidades deben seguir una metodología TDD (Test-Driven Development).
+
+### 1.1. Secuencia de Quality Gates Obligatoria
+
+**ANTES de cada commit**, ejecuta esta secuencia completa:
+
+```bash
+# 1. Formatear código
+uv run ruff format .
+
+# 2. Corregir errores de linting automáticamente
+uv run ruff check . --fix
+
+# 3. Verificar tipado estático
+uv run mypy .
+
+# 4. Ejecutar pruebas
+uv run pytest
+```
+
+### 1.2. Patrones de Errores Comunes y Correcciones
+
+#### 1.2.1. Errores de Ruff Comunes
+
+- **E501 (line too long)**: Usa `ruff format` para formatear automáticamente
+- **F401 (imported but unused)**: Elimina importaciones no utilizadas
+- **F841 (assigned but never used)**: Elimina variables no utilizadas o usa `_` como prefijo
+- **E402 (module level import not at top)**: Mueve imports al inicio del archivo
+- **B006 (mutable default argument)**: Usa `None` como default y crea el objeto dentro de la función
+
+#### 1.2.2. Errores de Mypy Comunes
+
+- **Missing return type annotation**: Añade `-> ReturnType` a todas las funciones
+- **Missing parameter type annotation**: Añade tipos a todos los parámetros
+- **Incompatible return type**: Corrige el tipo de retorno o usa `cast()`
+- **"Any" has no attribute**: Especifica tipos más concretos en lugar de `Any`
+- **Argument 1 has incompatible type**: Corrige los tipos de los argumentos
+- **Uso de tipos obsoletos**: Reemplaza `Optional[str]` por `str | None`, `List[int]` por `list[int]`, etc.
+
+#### 1.2.3. Patrones de Corrección Recomendados
+
+```python
+# ❌ Incorrecto
+def process_data(data):
+    result = []
+    for item in data:
+        if item > 0:
+            result.append(item * 2)
+    return result
+
+# ✅ Correcto
+def process_data(data: list[int]) -> list[int]:
+    result: list[int] = []
+    for item in data:
+        if item > 0:
+            result.append(item * 2)
+    return result
+
+# ❌ Incorrecto - mutable default
+def create_list(items=[]):
+    return items
+
+# ✅ Correcto
+def create_list(items: list[str] | None = None) -> list[str]:
+    if items is None:
+        items = []
+    return items
+
+# ❌ Incorrecto - sin tipos
+def calculate(a, b):
+    return a + b
+
+# ✅ Correcto
+def calculate(a: int, b: int) -> int:
+    return a + b
+
+# ❌ Incorrecto - tipos obsoletos
+from typing import Optional, List, Dict
+def process_data(items: List[str], config: Optional[Dict[str, int]]) -> Optional[str]:
+    return None
+
+# ✅ Correcto - tipos modernos
+def process_data(items: list[str], config: dict[str, int] | None) -> str | None:
+    return None
+```
+
+## 2. Metodología TDD (Test-Driven Development)
+
+- **Ciclo de Desarrollo**: Sigue estrictamente el ciclo Rojo-Verde-Refactor.
+    1. **Rojo**: Escribe una prueba que falle *antes* de escribir el código de la funcionalidad. La prueba debe describir el comportamiento esperado.
+    2. **Verde**: Escribe la cantidad mínima de código necesaria para que la prueba pase.
+    3. **Refactor**: Mejora el código (elimina duplicación, mejora la claridad) asegurándote de que todas las pruebas sigan pasando.
+- **Ubicación de las Pruebas**: Las pruebas deben residir en el directorio `/tests`, replicando la estructura del directorio `/src`. Por ejemplo, una prueba para `src/turboapi/core/di.py` debería estar en `tests/core/test_di.py`.
+
+## 3. Estilo de Código y Convenciones
+
+- **Formato**: Tienes que seguir estrictamente el formato impuesto por `Ruff` (`ruff format`).
+- **Importaciones**: Usa importaciones absolutas siempre que sea posible. `Ruff` (`ruff check`) ordenará y agrupará las importaciones automáticamente.
+- **Tipado (`Typing`)**:
+  - **OBLIGATORIO**: Usa anotaciones de tipo modernas de Python 3.10+:
+    - `list[str]` en lugar de `List[str]`
+    - `dict[str, int]` en lugar de `Dict[str, int]`
+    - `str | None` en lugar de `Optional[str]`
+    - `int | float` en lugar de `Union[int, float]`
+    - `tuple[str, int]` en lugar de `Tuple[str, int]`
+  - **NUNCA uses**: `Optional`, `Union`, `List`, `Dict`, `Tuple`, `Set` del módulo `typing`
+  - Todo el código de funciones y métodos debe tener tipos para los argumentos y el valor de retorno.
+  - Tienes que definir el tipado de los decoradores usando `ParamSpec` y `TypeVar` (para entrada y salida) siempre que estén soportados en la versión de `python` que se esté usando.
+- **Inyección de Dependencias**: Prefiere siempre la inyección por constructor. Esto hace que las dependencias sean explícitas y el código más fácil de probar.
+
+### 3.1. Convenciones de Nomenclatura
+
+- **Variables y funciones**: `snake_case`
+- **Clases**: `PascalCase`
+- **Constantes**: `UPPER_SNAKE_CASE`
+- **Módulos**: `snake_case`
+- **Archivos de prueba**: `test_*.py`
+
+### 3.2. Estructura de Archivos
+
+- **Imports**: Ordenados por grupos (stdlib, third-party, local)
+- **Docstrings**: Al inicio de módulos, clases y funciones públicas
+- **Type hints**: Obligatorios en todas las funciones y métodos
+- **Line length**: Máximo 100 caracteres (configurado en ruff)
+
+## 4. Documentación y Comentarios
+
+- **Docstrings**:
+  - Escribe docstrings para todos los módulos, clases y funciones públicas, siguiendo el [estilo de numpy](https://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html#example-numpy).
+  - Incluye una sección de ejemplos en funciones y métodos.
+  - Añade los docstrings de `NamedTuple` y `dataclass` debajo de la definición de la clase.
+- **Comentarios**:
+  - Añade comentarios solo para explicar el *porqué* de una decisión compleja, no el *qué* hace el código. El código debe de poder explicarse por si solo.
+
+## 5. Gestión de Proyecto con `uv`
+
+### 5.1. Archivo de Proyecto
+
+El único archivo de proyecto con el que trabajarás es `pyproject.toml`. Todas las herramientas usarán este archivo para sus configuraciones.
+
+### 5.2. Usar `uv` Exclusivamente
+
+- Todas las dependencias de Python **deben ser instaladas, sincronizadas y bloqueadas** usando `uv`.
+- Nunca uses `pip`, `pip-tools`, o `poetry` directamente para la gestión de dependencias.
+- Crear entorno virtual, si no existe
+
+### 5.3. Gestión de Dependencias
+
+Siempre usa estos comandos:
+
+```bash
+# Añadir o actualizar dependencias
+uv add <package>
+
+# Eliminar dependencias
+uv remove <package>
+
+# Reinstalar todas las dependencias desde el archivo de bloqueo
+uv sync
+```
+
+### 5.4. Scripts
+
+```bash
+# Ejecutar script con dependencias apropiadas
+uv run script.py
+```
+
+Puedes editar metadatos inline manualmente:
+
+```python
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "torch",
+#     "torchvision",
+#     "opencv-python",
+#     "numpy",
+#     "matplotlib",
+#     "Pillow",
+#     "timm",
+# ]
+# ///
+
+print("some python code")
+```
+
+O usando la CLI de uv:
+
+```bash
+# Añadir o actualizar dependencias de script
+uv add package-name --script script.py
+
+# Eliminar dependencias de script
+uv remove package-name --script script.py
+
+# Reinstalar todas las dependencias de script desde el archivo de bloqueo
+uv sync --script script.py
+```
+
+### 5.5. Ejecutar Código Python
+
+- Ejecutar un script de Python con `uv run <script-name>.py`
+- Ejecutar herramientas de Python como pytest, ruff o mypy con `uv run pytest` o `uv run ruff` o `uv run mypy`
+
+## 6. Configuración Inicial del Proyecto
+
+### 6.1. Estructura de Archivos Recomendada
+
+```text
+mi_proyecto/
+├── pyproject.toml      # Dependencias y configuración del proyecto
+├── uv.lock             # Lock file generado automáticamente (NO editar manualmente)
+├── .python-version     # Opcional: versión de Python específica
+├── src/                # Código fuente del proyecto
+│   └── tu_paquete/
+│       ├── __init__.py
+│       └── ...
+└── tests/              # Tests del proyecto
+    └── ...
+```
+
+### 6.2. pyproject.toml Optimizado
+
+```toml
+[project]
+name = "my-project"
+version = "0.1.0"
+description = "My project with a modern stack"
+requires-python = ">=3.10"
+dependencies = [
+    # Your principal dependencies here
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.13.2",
+    "mypy>=1.18.2",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", "build", "dist", "__pycache__"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "SIM", # rules of flake8-simplify (simplify complex code).
+]
+ignore = [
+    "E501",  # line too long, handled by black
+]
+
+# Configuración específica para archivos de tests
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "F841",   # Asigned variable but not used (common in tests)
+    "B017",   # pytest.raises(Exception) (común en tests)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+# Versión de Python para la que se realiza el chequeo.
+python_version = "3.10"
+strict = true
+# No fallar si una librería de terceros no tiene typings.
+ignore_missing_imports = true
+# No seguir los imports de librerías sin typings.
+follow_imports = "silent"
+
+# Force to all functions and method have type annotations.
+disallow_untyped_defs = true
+# Warn if a function return 'Any' in a implicit form.
+warn_return_any = true
+# Warn for unused config in this file.
+warn_unused_configs = true
+
+# Exclude dirs from type check actions.
+exclude = ["\\.venv", "build", "dist", "tests"]
+
+[tool.pytest.ini_options]
+# Añade 'src' al PYTHONPATH para que los tests encuentren el paquete.
+# pythonpaths = ["src"]
+testpaths = ["tests"]
+# Modo de asyncio para pytest-asyncio. 'auto' es generalmente la mejor opción.
+# asyncio_mode = "auto"
+addopts = [
+    "--verbose",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+```
+
+### 6.3. Migración desde requirements.txt
+
+Si ya tienes un `requirements.txt`, la migración es inmediata:
+
+```bash
+# Instalar uv (requiere Python 3.8+)
+pip install uv
+
+# Crear entorno virtual e instalar desde requirements.txt
+uv venv
+uv pip sync requirements.txt
+
+# Opcional: generar pyproject.toml desde requirements.txt
+uv init --from-requirements-txt
+```
+
+## 7. Flujo de Trabajo Diario con uv
+
+### 7.1. Comandos Esenciales para el Equipo
+
+```bash
+# Inicializar nuevo proyecto
+uv init mi-proyecto
+cd mi-proyecto
+
+# Activar entorno virtual
+source .venv/bin/activate  # Linux/Mac
+# o
+.venv\Scripts\activate      # Windows
+
+# Instalar dependencias principales
+uv add "fastapi" "uvicorn[standard]" "pydantic"
+
+# Instalar dependencias de desarrollo
+uv add --dev "pytest" "ruff" "mypy"
+
+# Instalar todas las dependencias del pyproject.toml
+uv sync
+
+# Ejecutar la aplicación (ejemplo con Uvicorn)
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### 7.2. Gestión de Dependencias
+
+```bash
+# Añadir nueva dependencia
+uv add "requests>=2.31.0"
+
+# Añadir dependencia de desarrollo
+uv add --dev "pytest-cov"
+
+# Actualizar todas las dependencias
+uv sync --upgrade
+
+# Eliminar dependencia
+uv remove "package-name"
+
+# Mostrar árbol de dependencias
+uv tree
+```
+
+## 8. Configuración para Entornos de Producción
+
+### 8.1. Dockerfile Optimizado con `uv`
+
+```dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Instalar uv
+RUN pip install uv
+
+# Copiar archivos de dependencias
+COPY pyproject.toml uv.lock ./
+
+# Instalar dependencias usando cache de Docker
+RUN uv sync --frozen --no-dev
+
+# Copiar código de la aplicación
+COPY src/ ./src/
+
+# Exponer puerto
+EXPOSE 8000
+
+# Comando de inicio
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+```

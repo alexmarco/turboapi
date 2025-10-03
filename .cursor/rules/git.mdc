@@ -1,0 +1,368 @@
+---
+alwaysApply: true
+description: Establece las normas de trabajo y procedimientos sobre `git` para un equipo de desarrollo
+---
+# 🛠️ Protocolo y Políticas de Trabajo con Git para Equipos de Desarrollo
+
+Para asegurar que trabajamos de forma ordenada y mantenemos la calidad del código, tienes que seguir estos pasos y políticas en tu día a día.
+
+## 1. 🌱 Estrategia de Ramas (Branching Strategy)
+
+### 1.1. Estructura de Ramas Principal
+
+Adoptarás una variante del *Gitflow* con las siguientes ramas permanentes:
+
+- main/master: Contiene únicamente el código estable y listo para producción. Está protegida contra pushes directos.
+- develop: Rama de integración donde se unen las funcionalidades completadas para preparar el siguiente release. También está protegida contra pushes directos.
+
+### 1.2. Ramas de Desarrollo (Feature Branches)
+
+- Nomenclatura: Ejemplos: `feature/descripcion-breve`, `fix/issue-123`, o `hotfix/urgencia-corta`.
+- Características: Asegura que las ramas tengan una vida corta (< 1 día) para minimizar conflictos de fusión.
+- Creación desde develop: `git checkout -b feature/nueva-funcionalidad develop`
+
+## 2. 💻 Flujo de Trabajo Diario
+
+### 2.1. Comenzar a Trabajar
+
+- Sincroniza siempre primero: Antes de crear tu rama, tienes que actualizar tu develop local para tener la última versión del código y evitar conflictos:
+
+    ```bash
+    git checkout develop
+    git pull origin develop
+    ```
+
+  Esto evita conflictos al garantizar que trabajas con la versión más reciente del código.
+- Crea rama de feature: Una vez actualizado, crea tu rama `git checkout -b feature/nombre-feature`
+
+### 2.2. Trabajar en Cambios
+
+Mientras trabajas en los cambios:
+
+- Verifica el estado frecuentemente: Usa `git status` para monitorear cambios realizados, archivos modificados y la rama actual.
+- **Quality Gates Obligatorios**: Antes de cada commit, DEBES ejecutar la secuencia completa de calidad de código:
+  1. `uv run ruff format .` - Formatear código
+  2. `uv run ruff check . --fix` - Corregir errores de linting
+  3. `uv run mypy .` - Verificar tipado estático
+  4. `uv run pytest` - Ejecutar pruebas
+- Realiza commits atómicos: Tienes que hacer commits con frecuencia. Cada commit debe representar una unidad lógica de cambio.
+- Mensajes claros: Usa el formato convencional:
+
+    ```text
+    <tipo>(<alcance>): <asunto>
+
+    <cuerpo>
+
+    <pie>
+    ```
+
+    Ejemplo:
+
+    ```text
+    feat(payment): integrate with Stripe API
+
+    - Add Stripe SDK dependency
+    - Create payment intent service
+    - Handle webhook for payment confirmation
+
+    Refs: #123
+    ```
+
+### 2.3. Finalizar una Funcionalidad
+
+Cuando termines tu tarea, tienes que seguir estos pasos:
+
+1. **Pre-commit Quality Check**: Ejecuta la secuencia completa de calidad de código una última vez:
+
+   ```bash
+   uv run ruff format .
+   uv run ruff check . --fix
+   uv run mypy .
+   uv run pytest
+   ```
+
+2. **Commit Final**: Realiza el commit final con todos los cambios.
+3. Sube tu rama al repositorio remoto: `git push origin feature/nombre-feature`.
+4. Crea un Pull Request (PR) o Merge Request (MR) hacia develop.
+5. Espera la revisión de código por al menos un compañero, que en este caso seré yo.
+6. Realiza los ajustes solicitados en la revisión.
+7. El revisor aprueba y fusiona el PR/MR. La rama de feature se elimina tras la fusión.
+
+## 3. ✅ Tus Responsabilidades sobre la Calidad del Código
+
+### 3.1. En las Revisiones de Código (Code Review)
+
+- Requisito obligatorio: Todo tu código debe ser revisado antes de poder integrarse en develop.
+- Tu responsabilidad como autor: Debes aceptar la revisión como una herramienta para mantener la calidad y compartir conocimiento.
+- Tu responsabilidad como revisor: Eres tan responsable como el autor de la calidad del código que apruebas.
+
+### 3.2. Con Integración Continua (CI)
+
+- Cada PR que abras debe disparar un pipeline de CI que ejecute, como mínimo, linting, análisis estático, pruebas unitarias y verificación de vulnerabilidades.
+- Criterio para fusionar: Tienes que asegurarte de que el pipeline pase con éxito. Si no, la fusión no está permitida.
+- Prioridad máxima: Si las pruebas fallan o el build se rompe en develop, tienes que priorizar su solución junto con el equipo.
+
+## 4. 🚨 Prevención y Manejo de Conflictos
+
+- Cambios pequeños y frecuentes: Realizar cambios incrementales reduce drásticamente el riesgo de conflictos de fusión.
+- Actualizar frecuentemente: Si trabajas en una rama larga, fusiona (merge) los cambios de develop a tu rama regularmente para mantenerla actualizada.
+- Antes de fusionar: Siempre ejecuta git pull origin develop en tu rama de feature para resolver conflictos localmente antes de crear el PR/MR.
+
+## 5. 📋 Cómo Debes Crear y Gestionar tus Pull Requests
+
+Cada PR/MR debe cumplir con lo siguiente antes de su fusión:
+
+- **Quality Gates Verificados**: Código formateado con `ruff format`, sin errores de linting (`ruff check`), tipado correcto (`mypy`), y todas las pruebas pasando (`pytest`).
+- Código compila sin errores.
+- Tests automatizados pasan correctamente.
+- Cobertura de código se mantiene o mejora.
+- Cumple con guías de estilo del proyecto (linter).
+- Documentación actualizada (si aplica).
+- Revisado y aprobado por al menos un compañero.
+- Conflictos de fusión resueltos (si existen).
+- La rama está actualizada con develop.
+
+## 6. 🔧 Pre-commit Workflow Obligatorio
+
+### 6.1. Secuencia de Quality Gates
+
+**ANTES de cada commit**, debes ejecutar esta secuencia completa:
+
+```bash
+# 1. Formatear código
+uv run ruff format .
+
+# 2. Corregir errores de linting automáticamente
+uv run ruff check . --fix
+
+# 3. Verificar tipado estático
+uv run mypy .
+
+# 4. Ejecutar pruebas
+uv run pytest
+
+# 5. Solo si todo pasa, hacer commit
+git add .
+git commit -m "feat(scope): descripción del cambio"
+```
+
+### 6.2. Manejo de Errores
+
+- **Si `ruff check` falla**: Corrige los errores manualmente y vuelve a ejecutar.
+- **Si `mypy` falla**: Añade tipos faltantes o corrige errores de tipado.
+- **Si `pytest` falla**: Corrige las pruebas o el código hasta que pasen.
+- **NUNCA hagas commit con errores**: Es preferible hacer commits pequeños y frecuentes que un commit grande con errores.
+
+### 6.3. Automatización Recomendada
+
+Para evitar olvidar estos pasos, configura un hook de pre-commit:
+
+```bash
+# Instalar pre-commit
+uv add --dev pre-commit
+
+# Crear .pre-commit-config.yaml
+cat > .pre-commit-config.yaml << EOF
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+      - id: ruff-check
+        name: ruff-check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types: [python]
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        types: [python]
+EOF
+
+# Instalar el hook
+uv run pre-commit install
+```
+
+## 7. 🗂️ Manejo del Repositorio
+
+- No incluir archivos binarios o generados: Evitar commits de archivos compilados, dependencias (node_modules, .jar) o archivos específicos del IDE. Utilizar .gitignore robusto.
+- Commits limpios: Antes de hacer commit, revisar qué se está incluyendo con `git diff --staged`.
+- Seguridad: Agregar un archivo SECURITY.md en la raíz del repositorio para proporcionar instrucciones sobre cómo reportar vulnerabilidades de seguridad.
+
+## 8. 🔀 Política de Pull Requests
+
+### 8.1. Principios Fundamentales
+
+- Responsabilidad Única: Tu PR debe tener un único propósito específico. No incluyas correcciones no relacionadas en un PR de una nueva característica.
+- Tamaño Reducido: Tienes que mantener tus PRs pequeños (idealmente menos de 200-400 líneas de código). Son más fáciles y rápidos de revisar.
+- Contexto Completo: Tienes que proporcionar descripciones detalladas que expliquen el propósito del PR y enlazar a los issues relacionados.
+- Títulos Descriptivos: Usa títulos claros que describan lo que hace el PR, no solo la clave del issue.
+
+### 8.2. Creación de Pull Requests
+
+#### 8.2.1. Plantilla Estándar para Pull Requests
+
+```markdown
+
+## Descripción
+
+[Descripción clara del propósito de estos cambios]
+
+## Cambios Realizados
+
+- [Lista de cambios principales]
+- [Agrupar por conceptos o problemas resueltos]
+
+## Tipo de Cambio
+
+- [ ] Corrección de bug
+- [ ] Nueva característica
+- [ ] Cambio breaking
+- [ ] Refactorización
+- [ ] Documentación
+
+## Comprobaciones
+
+- [ ] He auto-revisado mi PR
+- [ ] **Quality Gates ejecutados**: `ruff format`, `ruff check --fix`, `mypy`, `pytest`
+- [ ] El código compila/pasa tests
+- [ ] He añadido tests si corresponde
+- [ ] He actualizado la documentación
+
+## Capturas (si aplica)
+
+[Añadir capturas de pantalla para cambios de frontend]
+
+## Issues Relacionados
+
+Closes #[número], Fixes #[número]
+```
+
+#### 8.2.2. Prácticas Específicas
+
+- Auto-revisión: Tienes que revisar, compilar y probar tu propio PR antes de enviarlo a revisión.
+- PRs en Borrador: Utiliza la función de PRs en borrador (Draft) para obtener feedback temprano si la funcionalidad no está completa.
+- Comentarios Guía: Si es necesario, añade comentarios en líneas específicas de tu PR para dirigir la atención del revisor.
+- Actualizaciones post-aprobación: Si realizas un cambio importante después de que tu PR haya sido aprobado, tienes que notificar a los revisores para que lo miren de nuevo.
+
+### 8.3. Proceso de Revisión
+
+#### 8.3.1. Para el Autor
+
+- Sé Proactivo: Considera organizar una reunión breve para PRs largos y explica los cambios.
+- Actitud Constructiva: Mantén un tono profesional en los comentarios. Los comentarios se centran en el código, no en las personas.
+- Retroalimentación: Si cambias algo importante después de la aprobación, notifica a los revisores anteriores para que revisen nuevamente.
+
+#### 8.3.2. Para el Revisor
+
+- Revisión Rápida: Responde a las solicitudes de review en un plazo máximo de un día hábil.
+- Feedback Específico: Evita comentarios vagos. Proporciona alternativas concretas cuando no estés de acuerdo.
+- Revisión Multidisciplinaria: Incluye expertos en diferentes áreas según el tipo de cambios (UX para frontend, seguridad para cambios críticos, etc.).
+
+### 8.4. Automatización y QA
+
+- Integración Continua: Configura pipelines automáticos que ejecuten tests y análisis estático en cada PR.
+- Análisis Estático: Usa herramientas de linting para mantener la coherencia del estilo de código.
+- Revisión de Seguridad: Incluye verificaciones de seguridad automatizadas para detectar dependencias vulnerables.
+
+## 9. 📄 Generación y Gestión de Changelogs
+
+### 9.1. ¿Qué es un Changelog?
+
+Un changelog es un archivo que contiene una lista cronológica de todos los cambios notables realizados en un proyecto, organizado normalmente por versión con la fecha, seguido de una lista de características añadidas, mejoradas y eliminadas.
+
+### 9.2. Enfoques para Generar Changelogs
+
+#### 9.2.1. Enfoque Manual (Recomendado)
+
+Mantén un archivo `CHANGELOG.md` siguiendo el formato de Keep a Changelog:
+
+```markdown
+
+# Changelog
+
+Todos los cambios notables en este proyecto serán documentados en este archivo.
+
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
+y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [No Liberado]
+
+### Añadido
+
+-
+
+### Cambiado
+
+-
+
+### Corregido
+
+-
+
+### Eliminado
+
+-
+
+## [1.1.1] - 2023-03-05
+
+### Añadido
+
+- Traducción al árabe (#444)
+- v1.1 traducción al francés
+```
+
+#### 9.2.2. Enfoque Automatizado
+
+- Método Simple (para proyectos pequeños):
+
+    ```bash
+
+    # Generar changelog básico desde commits
+
+    git log --pretty="- %s" > CHANGELOG.md
+
+    # Con formato mejorado
+
+    git log --pretty="- %s (%an, %ad)" --date=short > CHANGELOG.md
+    ```
+
+- Herramientas Especializadas:
+
+| Herramienta        | Lenguaje | Características                                    |
+| ------------------ | -------- | -------------------------------------------------- |
+| git-cliff          | Rust     | Altamente personalizable, commits convencionales   |
+| generate-changelog | Node.js  | Formato específico, requiere estructura de commits |
+| git-changelog      | Python   | Plantillas Jinja2, múltiples convenciones          |
+
+### 9.3. Convención de Commits para Changelogs Automatizados
+
+Para aprovechar las herramientas automatizadas, implementa una convención de commits:
+
+```text
+<tipo>(<ámbito>): <descripción> [flags]
+
+Ejemplos:
+feat(auth): add OAuth2 integration
+fix(api): resolve memory leak in request handler
+docs(readme): update installation instructions
+breaking(db): remove deprecated methods
+```
+
+Los tipos comúnmente aceptados incluyen: feat, fix, docs, style, refactor, test, chore.
+
+### 9.4. Flujo de Trabajo Integrado
+
+- Pre-commit: Los desarrolladores siguen la convención establecida
+- Pre-release: Ejecutar herramienta de generación de changelog
+- Revisión: Revisar y ajustar el changelog generado automáticamente
+- Commit: Incluir changelog actualizado en el tag de release

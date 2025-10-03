@@ -1,0 +1,30 @@
+{
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "tests",
+        "**/__pycache__",
+        "**/.mypy_cache",
+        "**/.pytest_cache",
+        "**/node_modules",
+        ".venv",
+        "build",
+        "dist"
+    ],
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "pythonVersion": "3.10",
+    "pythonPlatform": "All",
+    "typeCheckingMode": "basic",
+    "useLibraryCodeForTypes": true,
+    "executionEnvironments": [
+        {
+            "root": "src",
+            "pythonVersion": "3.10",
+            "extraPaths": [
+                "src"
+            ]
+        }
+    ]
+}
