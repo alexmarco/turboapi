@@ -1,7 +1,7 @@
 """Context managers para el sistema de caché asíncrono."""
 
 import asyncio
-from typing import Any, Dict
+from typing import Any
 
 from ..interfaces import AsyncBaseCache
 from .async_memory import AsyncInMemoryCache
@@ -10,7 +10,7 @@ from .async_memory import AsyncInMemoryCache
 class AsyncCacheContext:
     """
     Context manager para gestión automática del caché asíncrono.
-    
+
     Proporciona un contexto donde se puede gestionar automáticamente
     el ciclo de vida del caché, incluyendo limpieza automática.
     """
@@ -32,7 +32,7 @@ class AsyncCacheContext:
         """
         self.cache_instance = cache_instance or AsyncInMemoryCache()
         self.auto_cleanup = auto_cleanup
-        self._original_cache_instances: Dict[str, Any] = {}
+        self._original_cache_instances: dict[str, Any] = {}
 
     async def __aenter__(self) -> "AsyncCacheContext":
         """
@@ -62,7 +62,7 @@ class AsyncCacheContext:
         if self.auto_cleanup:
             await self.cache_instance.aclear()
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """
         Obtiene estadísticas del caché en el contexto.
 
@@ -110,14 +110,14 @@ class AsyncCacheContext:
 class AsyncCacheManager:
     """
     Gestor global para instancias de caché asíncrono.
-    
+
     Permite gestionar múltiples instancias de caché y coordinar
     su uso en diferentes contextos asyncio.
     """
 
     def __init__(self) -> None:
         """Inicializa el gestor de caché asíncrono."""
-        self._caches: Dict[str, AsyncBaseCache] = {}
+        self._caches: dict[str, AsyncBaseCache] = {}
         self._lock = asyncio.Lock()
 
     async def get_cache(self, name: str = "default") -> AsyncBaseCache:
@@ -158,7 +158,7 @@ class AsyncCacheManager:
             for cache in self._caches.values():
                 await cache.aclear()
 
-    async def get_all_stats(self) -> Dict[str, Dict[str, Any]]:
+    async def get_all_stats(self) -> dict[str, dict[str, Any]]:
         """
         Obtiene estadísticas de todas las instancias de caché.
 
@@ -232,7 +232,7 @@ async def clear_global_cache(name: str = "default") -> None:
     await _global_cache_manager.clear_cache(name)
 
 
-async def get_global_cache_stats() -> Dict[str, Dict[str, Any]]:
+async def get_global_cache_stats() -> dict[str, dict[str, Any]]:
     """
     Obtiene estadísticas de todas las instancias de caché globales.
 

@@ -177,4 +177,124 @@ Este documento desglosa el plan de desarrollo en épicas y tareas manejables, di
 - **Rendimiento**: Las operaciones async no deben bloquear el hilo principal
 
 ---
-*Las épicas para Seguridad y Observabilidad se detallarán una vez que el núcleo esté maduro.*
+
+## Épica 7: Sistema de Seguridad y Autenticación
+
+*Objetivo: Implementar un sistema robusto de autenticación, autorización y seguridad para aplicaciones empresariales.*
+
+### Funcionalidades Principales
+
+- [ ] **Tarea 7.1 (Auth - Interfaces)**: Definir interfaces para autenticación (`BaseAuthProvider`, `BaseTokenManager`)
+- [ ] **Tarea 7.2 (Auth - JWT)**: Implementar autenticación JWT con refresh tokens
+- [ ] **Tarea 7.3 (Auth - Decorators)**: Crear decoradores `@RequireAuth`, `@RequireRole`, `@RequirePermission`
+- [ ] **Tarea 7.4 (Auth - Middleware)**: Middleware de autenticación para FastAPI
+- [ ] **Tarea 7.5 (Auth - RBAC)**: Sistema de roles y permisos (Role-Based Access Control)
+- [ ] **Tarea 7.6 (Auth - Session)**: Gestión de sesiones y almacenamiento seguro
+- [ ] **Tarea 7.7 (Auth - OAuth)**: Integración con proveedores OAuth2 (Google, GitHub, etc.)
+- [ ] **Tarea 7.8 (Auth - Security)**: Headers de seguridad, CORS, rate limiting
+- [ ] **Tarea 7.9 (Auth - CLI)**: Comandos CLI para gestión de usuarios y roles
+- [ ] **Tarea 7.10 (Auth - Testing)**: Suite completa de pruebas de seguridad
+
+### Consideraciones de Seguridad
+
+- **Encriptación**: Uso de bcrypt para passwords, JWT firmado
+- **Validación**: Sanitización de inputs y validación estricta
+- **Auditoría**: Logging de eventos de seguridad
+- **Compliance**: Preparación para GDPR, CCPA
+
+---
+
+## Épica 8: Observabilidad y Monitoreo ✅ COMPLETADA
+
+*Objetivo: Implementar capacidades completas de observabilidad, logging, métricas y trazabilidad distribuida.*
+
+### Funcionalidades Principales
+
+- [x] **Tarea 8.1 (Observability - Logging)**: Sistema de logging estructurado con niveles configurables
+- [x] **Tarea 8.2 (Observability - Metrics)**: Sistema unificado de métricas basado en OpenTelemetry con exportación a Prometheus
+- [x] **Tarea 8.3 (Observability - Tracing)**: Trazabilidad distribuida integrada con el sistema de métricas OpenTelemetry
+- [x] **Tarea 8.4 (Observability - Health)**: Health checks y endpoints de diagnóstico
+- [x] **Tarea 8.5 (Observability - APM)**: Integración con APM (Application Performance Monitoring)
+- [ ] **Tarea 8.6 (Observability - Alerts)**: Sistema de alertas y notificaciones
+- [ ] **Tarea 8.7 (Observability - Dashboard)**: Dashboard web para monitoreo en tiempo real
+- [ ] **Tarea 8.8 (Observability - Profiling)**: Profiling de rendimiento y memory leaks
+- [ ] **Tarea 8.9 (Observability - CLI)**: Comandos CLI para diagnóstico y debugging
+- [x] **Tarea 8.10 (Observability - Testing)**: Pruebas de observabilidad y métricas
+
+### Integraciones
+
+- **OpenTelemetry**: Sistema unificado de observabilidad (métricas + tracing)
+- **Prometheus**: Exportación automática de métricas para compatibilidad
+- **Grafana**: Visualización de métricas y traces
+- **ELK Stack**: Logging centralizado
+
+**Logros de la Épica 8:**
+
+- ✅ Sistema completo de logging estructurado con `structlog` y niveles configurables
+- ✅ Sistema unificado de métricas basado en OpenTelemetry con exportación a Prometheus
+- ✅ Trazabilidad distribuida integrada con el sistema de métricas OpenTelemetry
+- ✅ Health checks y endpoints de diagnóstico con modelos Pydantic estructurados
+- ✅ Integración con APM (Application Performance Monitoring) con arquitectura de addons
+- ✅ Sistema de addons para APM (New Relic, DataDog, Elastic APM) separado del core
+- ✅ Integración de métricas del sistema con OpenTelemetry (`SystemMetricsInstrumentor`)
+- ✅ Eliminación de variables globales en favor de inyección de dependencias
+- ✅ Modelos Pydantic con documentación completa para OpenAPI
+- ✅ Sistema de diagnóstico con métricas de sistema y proceso
+- ✅ 495 pruebas unitarias que cubren toda la funcionalidad de observabilidad
+- ✅ Código con tipado estático completo y formateo automático
+
+---
+
+## Épica 9: Optimización y Rendimiento
+
+*Objetivo: Optimizar el rendimiento del framework y proporcionar herramientas para aplicaciones de alta performance.*
+
+### Funcionalidades Principales
+
+- [ ] **Tarea 9.1 (Performance - Profiling)**: Herramientas de profiling integradas
+- [ ] **Tarea 9.2 (Performance - Caching)**: Optimizaciones avanzadas de caché (Redis, Memcached)
+- [ ] **Tarea 9.3 (Performance - Database)**: Pool de conexiones y optimización de queries
+- [ ] **Tarea 9.4 (Performance - Async)**: Optimizaciones para operaciones asíncronas
+- [ ] **Tarea 9.5 (Performance - Memory)**: Gestión optimizada de memoria
+- [ ] **Tarea 9.6 (Performance - Compression)**: Compresión de respuestas HTTP
+- [ ] **Tarea 9.7 (Performance - CDN)**: Integración con CDN para assets estáticos
+- [ ] **Tarea 9.8 (Performance - Load)**: Herramientas de load testing integradas
+- [ ] **Tarea 9.9 (Performance - Benchmarks)**: Suite de benchmarks automatizados
+- [ ] **Tarea 9.10 (Performance - Monitoring)**: Monitoreo de rendimiento en tiempo real
+
+### Objetivos de Rendimiento
+
+- **Latencia**: < 10ms para operaciones básicas
+- **Throughput**: > 10,000 requests/segundo
+- **Memory**: Uso eficiente de memoria
+- **Scalability**: Escalabilidad horizontal
+
+---
+
+## Épica 10: Herramientas de Desarrollo Avanzadas
+
+*Objetivo: Proporcionar herramientas avanzadas que mejoren significativamente la experiencia de desarrollo.*
+
+### Funcionalidades Principales
+
+- [ ] **Tarea 10.1 (DevTools - Hot Reload)**: Hot reload avanzado para desarrollo
+- [ ] **Tarea 10.2 (DevTools - Debugging)**: Herramientas de debugging integradas
+- [ ] **Tarea 10.3 (DevTools - Testing)**: Framework de testing avanzado
+- [ ] **Tarea 10.4 (DevTools - Docs)**: Generación automática de documentación
+- [ ] **Tarea 10.5 (DevTools - IDE)**: Plugins para IDEs populares (VS Code, PyCharm)
+- [ ] **Tarea 10.6 (DevTools - Scaffolding)**: Generadores avanzados de código
+- [ ] **Tarea 10.7 (DevTools - Migration)**: Herramientas de migración entre versiones
+- [ ] **Tarea 10.8 (DevTools - Deployment)**: Herramientas de deployment automatizado
+- [ ] **Tarea 10.9 (DevTools - Docker)**: Integración completa con Docker/Kubernetes
+- [ ] **Tarea 10.10 (DevTools - CI/CD)**: Templates para CI/CD pipelines
+
+### Experiencia de Desarrollo
+
+- **Productividad**: Reducir tiempo de desarrollo en 50%
+- **Debugging**: Debugging visual y interactivo
+- **Documentation**: Docs siempre actualizadas
+- **Deployment**: Deploy con un comando
+
+---
+
+*El framework TurboAPI está diseñado para ser una solución completa y empresarial para el desarrollo de aplicaciones Python modernas.*

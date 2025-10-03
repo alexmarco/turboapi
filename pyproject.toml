@@ -17,6 +17,19 @@ dependencies = [
     "sqlalchemy",
     "alembic",
     "typer",
+    "PyJWT[crypto]",
+    "passlib[bcrypt]",
+    "opentelemetry-api",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-prometheus",
+    "opentelemetry-instrumentation-fastapi",
+    "opentelemetry-exporter-jaeger",
+    "opentelemetry-exporter-otlp",
+    "opentelemetry-instrumentation-requests",
+    "opentelemetry-instrumentation-sqlalchemy",
+    "deprecated>=1.2.18",
+    "psutil",
+    "opentelemetry-instrumentation-system-metrics>=0.58b0",
 ]
 
 [project.scripts]
@@ -31,6 +44,12 @@ dev = [
     "coverage",
     "httpx",          # Para TestClient
 ]
+# APM Addons
+apm-newrelic = ["newrelic"]
+apm-datadog = ["ddtrace"]
+apm-elastic = ["elastic-apm"]
+# All APM addons
+apm-all = ["newrelic", "ddtrace", "elastic-apm"]
 
 [tool.ruff]
 # Longitud de línea máxima, compatible con Black.

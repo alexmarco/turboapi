@@ -22,7 +22,9 @@ Base = declarative_base()
 def create_test_config() -> TurboConfig:
     """Crea una configuración de prueba."""
     return TurboConfig(
-        project_name="test_project", project_version="1.0.0", installed_apps=["test_app"]
+        project_name="test_project",
+        project_version="1.0.0",
+        installed_apps=["tests.test_data_starter"],  # Incluir el módulo de test
     )
 
 
@@ -138,6 +140,17 @@ class TestDataStarter:
         starter.configure()
 
         container = application.container
+
+        # Registrar manualmente el repositorio de prueba
+        def create_test_repository():
+            session = container.resolve("database_session")
+            return StarterTestRepository(session)
+
+        from turboapi.core.di import ComponentProvider
+
+        container.register(
+            "StarterTestRepository", ComponentProvider(create_test_repository, singleton=False)
+        )
 
         # Verificar que StarterTestRepository está registrado
         repository = container.resolve("StarterTestRepository")

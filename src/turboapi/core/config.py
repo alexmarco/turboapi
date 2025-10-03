@@ -1,6 +1,7 @@
 """Sistema de configuración del framework TurboAPI."""
 
 from pathlib import Path
+from typing import Any
 
 import tomli
 
@@ -17,10 +18,12 @@ class TurboConfig:
         project_name: str,
         project_version: str,
         installed_apps: list[str],
+        observability_config: dict[str, Any] | None = None,
     ) -> None:
         self._project_name = project_name
         self._project_version = project_version
         self._installed_apps = tuple(installed_apps)  # Hacer inmutable
+        self._observability_config = observability_config or {}
 
     @property
     def project_name(self) -> str:
@@ -36,6 +39,11 @@ class TurboConfig:
     def installed_apps(self) -> tuple[str, ...]:
         """Lista de aplicaciones instaladas."""
         return self._installed_apps
+
+    @property
+    def observability_config(self) -> dict[str, Any]:
+        """Configuración de observabilidad."""
+        return self._observability_config
 
     @classmethod
     def from_pyproject(cls, pyproject_path: Path) -> "TurboConfig":
@@ -57,6 +65,7 @@ class TurboConfig:
         # Extraer configuración de turboapi
         turboapi_data = data.get("tool", {}).get("turboapi", {})
         installed_apps = turboapi_data.get("installed_apps", [])
+        observability_config = turboapi_data.get("observability", {})
 
         # Validar installed_apps
         if not isinstance(installed_apps, list):
@@ -70,6 +79,7 @@ class TurboConfig:
             project_name=project_name,
             project_version=project_version,
             installed_apps=installed_apps,
+            observability_config=observability_config,
         )
 
     def __repr__(self) -> str:
@@ -77,5 +87,6 @@ class TurboConfig:
         return (
             f"TurboConfig(project_name='{self.project_name}', "
             f"project_version='{self.project_version}', "
-            f"installed_apps={list(self.installed_apps)})"
+            f"installed_apps={list(self.installed_apps)}, "
+            f"observability_config={self.observability_config})"
         )
