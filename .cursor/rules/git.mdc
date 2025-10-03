@@ -12,7 +12,7 @@ Para asegurar que trabajamos de forma ordenada y mantenemos la calidad del códi
 
 Adoptarás una variante del *Gitflow* con las siguientes ramas permanentes:
 
-- main/master: Contiene únicamente el código estable y listo para producción. Está protegida contra pushes directos.
+- main: Contiene únicamente el código estable y listo para producción. Está protegida contra pushes directos.
 - develop: Rama de integración donde se unen las funcionalidades completadas para preparar el siguiente release. También está protegida contra pushes directos.
 
 ### 1.2. Ramas de Desarrollo (Feature Branches)
