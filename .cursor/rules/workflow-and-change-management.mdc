@@ -16,7 +16,7 @@ Este documento establece el flujo de trabajo y la comunicación entre los equipo
 ## Fase 1: Flujo de Inicio del Proyecto
 
 1. **Kick-off (Producto → AT)**: Producto presenta la **versión 1.0 del PRD** al equipo de Arquitectura Técnica. Este documento esterá en `docs/01-prd.md`.
-2. **Diseño Técnico (AT)**: El equipo de AT crea la **versión 1.0 del DDT**, que traduce los requisitos funcionales y no funcionales en decisiones de arquitectura, tecnologías y patrones. Este documento se almacena en un repositorio Git (`docs/02-technical-design.md`).
+2. **Diseño Técnico (AT)**: El equipo de AT crea la **versión 1.0 del DDT**, que traduce los requisitos funcionales y no funcionales en decisiones de arquitectura, tecnologías y patrones. Este documento se almacena en un repositorio Git (`docs/02-ddt.md`).
 3. **Descomposición (AT → AS/Dev)**: El equipo de AS/Dev recibe el DDT y lo descompone en **Épicas** y **Tareas**, asegurando la trazabilidad con los requisitos del PRD. Este documento está en `docs/03-roadmap.md`.
 
 ## Fase 2: Protocolo de Gestión de Cambios

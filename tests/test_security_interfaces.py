@@ -1,20 +1,19 @@
 """Pruebas para las interfaces del sistema de seguridad."""
 
-import pytest
 from abc import ABC
-from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from datetime import datetime
+from datetime import timedelta
 
-from turboapi.security.interfaces import (
-    BaseAuthProvider,
-    BaseTokenManager,
-    BaseRBACManager,
-    AuthResult,
-    TokenPayload,
-    User,
-    Role,
-    Permission,
-)
+import pytest
+
+from turboapi.security.interfaces import AuthResult
+from turboapi.security.interfaces import BaseAuthProvider
+from turboapi.security.interfaces import BaseRBACManager
+from turboapi.security.interfaces import BaseTokenManager
+from turboapi.security.interfaces import Permission
+from turboapi.security.interfaces import Role
+from turboapi.security.interfaces import TokenPayload
+from turboapi.security.interfaces import User
 
 
 class TestSecurityInterfaces:
@@ -28,9 +27,9 @@ class TestSecurityInterfaces:
             access_token="jwt_token",
             refresh_token="refresh_token",
             expires_at=datetime.now() + timedelta(hours=1),
-            error_message=None
+            error_message=None,
         )
-        
+
         assert result.success is True
         assert result.user_id == "123"
         assert result.access_token == "jwt_token"
@@ -46,9 +45,9 @@ class TestSecurityInterfaces:
             access_token=None,
             refresh_token=None,
             expires_at=None,
-            error_message="Invalid credentials"
+            error_message="Invalid credentials",
         )
-        
+
         assert result.success is False
         assert result.user_id is None
         assert result.access_token is None
@@ -65,9 +64,9 @@ class TestSecurityInterfaces:
             permissions=["read", "write"],
             issued_at=datetime.now(),
             expires_at=datetime.now() + timedelta(hours=1),
-            extra_claims={"department": "engineering"}
+            extra_claims={"department": "engineering"},
         )
-        
+
         assert payload.user_id == "123"
         assert payload.username == "john_doe"
         assert payload.roles == ["user", "admin"]
@@ -88,9 +87,9 @@ class TestSecurityInterfaces:
             permissions=["read"],
             created_at=datetime.now(),
             last_login=None,
-            extra_data={"full_name": "John Doe"}
+            extra_data={"full_name": "John Doe"},
         )
-        
+
         assert user.id == "123"
         assert user.username == "john_doe"
         assert user.email == "john@example.com"
@@ -109,9 +108,9 @@ class TestSecurityInterfaces:
             description="Administrator role",
             permissions=["read", "write", "delete"],
             is_system_role=True,
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         assert role.name == "admin"
         assert role.description == "Administrator role"
         assert role.permissions == ["read", "write", "delete"]
@@ -125,9 +124,9 @@ class TestSecurityInterfaces:
             description="Read user data",
             resource="user",
             action="read",
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         assert permission.name == "user:read"
         assert permission.description == "Read user data"
         assert permission.resource == "user"
@@ -137,7 +136,7 @@ class TestSecurityInterfaces:
     def test_base_auth_provider_is_abstract(self) -> None:
         """Prueba que BaseAuthProvider es una clase abstracta."""
         assert issubclass(BaseAuthProvider, ABC)
-        
+
         # Verificar que no se puede instanciar directamente
         with pytest.raises(TypeError):
             BaseAuthProvider()  # type: ignore
@@ -151,18 +150,19 @@ class TestSecurityInterfaces:
             "logout",
             "get_user_by_id",
         }
-        
+
         actual_methods = {
-            name for name, method in BaseAuthProvider.__dict__.items()
-            if callable(method) and not name.startswith('_')
+            name
+            for name, method in BaseAuthProvider.__dict__.items()
+            if callable(method) and not name.startswith("_")
         }
-        
+
         assert required_methods.issubset(actual_methods)
 
     def test_base_token_manager_is_abstract(self) -> None:
         """Prueba que BaseTokenManager es una clase abstracta."""
         assert issubclass(BaseTokenManager, ABC)
-        
+
         # Verificar que no se puede instanciar directamente
         with pytest.raises(TypeError):
             BaseTokenManager()  # type: ignore
@@ -176,18 +176,19 @@ class TestSecurityInterfaces:
             "verify_refresh_token",
             "revoke_token",
         }
-        
+
         actual_methods = {
-            name for name, method in BaseTokenManager.__dict__.items()
-            if callable(method) and not name.startswith('_')
+            name
+            for name, method in BaseTokenManager.__dict__.items()
+            if callable(method) and not name.startswith("_")
         }
-        
+
         assert required_methods.issubset(actual_methods)
 
     def test_base_rbac_manager_is_abstract(self) -> None:
         """Prueba que BaseRBACManager es una clase abstracta."""
         assert issubclass(BaseRBACManager, ABC)
-        
+
         # Verificar que no se puede instanciar directamente
         with pytest.raises(TypeError):
             BaseRBACManager()  # type: ignore
@@ -204,12 +205,13 @@ class TestSecurityInterfaces:
             "get_user_roles",
             "get_user_permissions",
         }
-        
+
         actual_methods = {
-            name for name, method in BaseRBACManager.__dict__.items()
-            if callable(method) and not name.startswith('_')
+            name
+            for name, method in BaseRBACManager.__dict__.items()
+            if callable(method) and not name.startswith("_")
         }
-        
+
         assert required_methods.issubset(actual_methods)
 
 
@@ -220,7 +222,7 @@ class TestSecurityInterfacesIntegration:
         """Prueba la integración entre AuthResult y TokenPayload."""
         now = datetime.now()
         expires = now + timedelta(hours=1)
-        
+
         # Simular flujo de autenticación exitosa
         auth_result = AuthResult(
             success=True,
@@ -228,9 +230,9 @@ class TestSecurityInterfacesIntegration:
             access_token="jwt_token_here",
             refresh_token="refresh_token_here",
             expires_at=expires,
-            error_message=None
+            error_message=None,
         )
-        
+
         # TokenPayload que se extraería del token
         token_payload = TokenPayload(
             user_id=auth_result.user_id,
@@ -239,9 +241,9 @@ class TestSecurityInterfacesIntegration:
             permissions=["read"],
             issued_at=now,
             expires_at=auth_result.expires_at,
-            extra_claims={}
+            extra_claims={},
         )
-        
+
         assert auth_result.user_id == token_payload.user_id
         assert auth_result.expires_at == token_payload.expires_at
 
@@ -253,26 +255,26 @@ class TestSecurityInterfacesIntegration:
             description="Read user data",
             resource="user",
             action="read",
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         write_perm = Permission(
             name="user:write",
             description="Write user data",
             resource="user",
             action="write",
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         # Crear rol
         user_role = Role(
             name="user",
             description="Standard user role",
             permissions=[read_perm.name, write_perm.name],
             is_system_role=False,
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         # Crear usuario
         user = User(
             id="123",
@@ -284,9 +286,9 @@ class TestSecurityInterfacesIntegration:
             permissions=user_role.permissions,
             created_at=datetime.now(),
             last_login=None,
-            extra_data={}
+            extra_data={},
         )
-        
+
         assert user_role.name in user.roles
         assert read_perm.name in user.permissions
         assert write_perm.name in user.permissions

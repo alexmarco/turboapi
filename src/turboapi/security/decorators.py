@@ -1,11 +1,15 @@
 """Decoradores de seguridad para endpoints de FastAPI."""
 
 import functools
-from typing import Any, Callable, List, Union
-from fastapi import HTTPException, status
+from collections.abc import Callable
+from typing import Any
+
+from fastapi import HTTPException
+from fastapi import status
 
 from .exceptions import InvalidTokenError
-from .interfaces import BaseAuthProvider, User
+from .interfaces import BaseAuthProvider
+from .interfaces import User
 
 
 class RequireAuth:
@@ -26,7 +30,7 @@ class RequireAuth:
         """Inicializar el decorador de autenticación."""
         pass
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         Aplicar el decorador de autenticación a una función.
 
@@ -40,8 +44,9 @@ class RequireAuth:
         Callable
             Función envuelta con verificación de autenticación.
         """
+
         @functools.wraps(func)
-        async def wrapper(*args, **kwargs) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Esta implementación será completada en la integración con FastAPI
             # Por ahora, solo preservamos la función original
             return await func(*args, **kwargs)
@@ -52,11 +57,7 @@ class RequireAuth:
 
         return wrapper
 
-    async def _call_with_auth(
-        self, 
-        token: str | None, 
-        auth_provider: BaseAuthProvider
-    ) -> Any:
+    async def _call_with_auth(self, token: str | None, auth_provider: BaseAuthProvider) -> Any:
         """
         Método auxiliar para pruebas que simula la verificación de autenticación.
 
@@ -79,30 +80,25 @@ class RequireAuth:
         """
         if token is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Missing authorization token"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing authorization token"
             )
 
         try:
             # Validar token
             token_payload = await auth_provider.validate_token(token)
-            
+
             # Obtener usuario completo
             user = await auth_provider.get_user_by_id(token_payload.user_id)
             if user is None:
                 raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="User not found"
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
                 )
 
             # Retornar resultado simulado para las pruebas
             return {"user_id": user.id, "username": user.username}
 
         except InvalidTokenError as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
 
 class RequireRole:
@@ -125,7 +121,7 @@ class RequireRole:
     ...     return {"message": "moderator access"}
     """
 
-    def __init__(self, roles: Union[str, List[str]]) -> None:
+    def __init__(self, roles: str | list[str]) -> None:
         """
         Inicializar el decorador de roles.
 
@@ -139,7 +135,7 @@ class RequireRole:
         else:
             self.required_roles = roles
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         Aplicar el decorador de roles a una función.
 
@@ -153,25 +149,26 @@ class RequireRole:
         Callable
             Función envuelta con verificación de roles.
         """
+
         @functools.wraps(func)
-        async def wrapper(*args, **kwargs) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Esta implementación será completada en la integración con FastAPI
             return await func(*args, **kwargs)
 
         # Añadir metadata de seguridad
         wrapper._required_roles = self.required_roles  # type: ignore
         wrapper._call_with_user = self._call_with_user  # type: ignore
-        
+
         # Si ya hay un _call_with_user de otro decorador, crear una función combinada
         if hasattr(func, "_call_with_user"):
             original_call = func._call_with_user
-            
+
             async def combined_call(user: User) -> Any:
                 # Ejecutar verificación del decorador original
                 await original_call(user)
                 # Ejecutar nuestra verificación
                 return await self._call_with_user(user)
-            
+
             wrapper._call_with_user = combined_call  # type: ignore
 
         return wrapper
@@ -197,12 +194,11 @@ class RequireRole:
         """
         user_roles = set(user.roles)
         required_roles = set(self.required_roles)
-        
+
         # Verificar si el usuario tiene al menos uno de los roles requeridos
         if not required_roles.intersection(user_roles):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
             )
 
         # Retornar resultado simulado para las pruebas
@@ -233,7 +229,7 @@ class RequirePermission:
     ...     return {"message": "read-write access"}
     """
 
-    def __init__(self, permissions: Union[str, List[str]]) -> None:
+    def __init__(self, permissions: str | list[str]) -> None:
         """
         Inicializar el decorador de permisos.
 
@@ -247,7 +243,7 @@ class RequirePermission:
         else:
             self.required_permissions = permissions
 
-    def __call__(self, func: Callable) -> Callable:
+    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
         """
         Aplicar el decorador de permisos a una función.
 
@@ -261,25 +257,26 @@ class RequirePermission:
         Callable
             Función envuelta con verificación de permisos.
         """
+
         @functools.wraps(func)
-        async def wrapper(*args, **kwargs) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Esta implementación será completada en la integración con FastAPI
             return await func(*args, **kwargs)
 
         # Añadir metadata de seguridad
         wrapper._required_permissions = self.required_permissions  # type: ignore
         wrapper._call_with_user = self._call_with_user  # type: ignore
-        
+
         # Si ya hay un _call_with_user de otro decorador, crear una función combinada
         if hasattr(func, "_call_with_user"):
             original_call = func._call_with_user
-            
+
             async def combined_call(user: User) -> Any:
                 # Ejecutar verificación del decorador original
                 await original_call(user)
                 # Ejecutar nuestra verificación
                 return await self._call_with_user(user)
-            
+
             wrapper._call_with_user = combined_call  # type: ignore
 
         return wrapper
@@ -305,24 +302,27 @@ class RequirePermission:
         """
         user_permissions = set(user.permissions)
         required_permissions = set(self.required_permissions)
-        
+
         # Verificar si el usuario tiene TODOS los permisos requeridos
         if not required_permissions.issubset(user_permissions):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
             )
 
         # Retornar resultado simulado para las pruebas
         if len(self.required_permissions) == 1:
-            return {"message": f"{self.required_permissions[0]} access granted", "user": user.username}
+            return {
+                "message": f"{self.required_permissions[0]} access granted",
+                "user": user.username,
+            }
         else:
             return {"message": "access granted"}
 
 
 # Funciones auxiliares para manejar decoradores combinados
 
-def _has_security_decorator(func: Callable, decorator_type: str) -> bool:
+
+def _has_security_decorator(func: Callable[..., Any], decorator_type: str) -> bool:
     """
     Verifica si una función tiene un decorador de seguridad específico.
 
@@ -347,7 +347,7 @@ def _has_security_decorator(func: Callable, decorator_type: str) -> bool:
     return False
 
 
-def _get_security_metadata(func: Callable) -> dict[str, Any]:
+def _get_security_metadata(func: Callable[..., Any]) -> dict[str, Any]:
     """
     Obtiene toda la metadata de seguridad de una función.
 
@@ -362,16 +362,16 @@ def _get_security_metadata(func: Callable) -> dict[str, Any]:
         Diccionario con la metadata de seguridad.
     """
     metadata = {}
-    
+
     if hasattr(func, "_requires_auth"):
         metadata["requires_auth"] = func._requires_auth
-    
+
     if hasattr(func, "_required_roles"):
         metadata["required_roles"] = func._required_roles
-    
+
     if hasattr(func, "_required_permissions"):
         metadata["required_permissions"] = func._required_permissions
-    
+
     return metadata
 
 
@@ -395,20 +395,18 @@ def validate_combined_security(user: User, security_metadata: dict[str, Any]) ->
     if "required_roles" in security_metadata:
         required_roles = set(security_metadata["required_roles"])
         user_roles = set(user.roles)
-        
+
         if not required_roles.intersection(user_roles):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
             )
-    
+
     # Verificar permisos si son requeridos
     if "required_permissions" in security_metadata:
         required_permissions = set(security_metadata["required_permissions"])
         user_permissions = set(user.permissions)
-        
+
         if not required_permissions.issubset(user_permissions):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
             )

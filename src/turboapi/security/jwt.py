@@ -6,8 +6,8 @@ from datetime import timedelta
 from datetime import timezone
 from typing import Any
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
 
 from .exceptions import InvalidTokenError
 from .interfaces import AuthResult
@@ -22,12 +22,13 @@ class PasswordHandler:
     Manejador de contraseñas usando bcrypt.
 
     Proporciona métodos para hash y verificación de contraseñas
-    usando la librería passlib con bcrypt.
+    usando la librería bcrypt directamente.
     """
 
     def __init__(self) -> None:
         """Inicializar el contexto de hashing con bcrypt."""
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        # Usar bcrypt directamente para evitar problemas de detección de bugs de passlib
+        pass
 
     def hash_password(self, password: str) -> str:
         """
@@ -47,7 +48,10 @@ class PasswordHandler:
         password_bytes = password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
-        return self.pwd_context.hash(password_bytes.decode("utf-8"))
+        # Usar bcrypt directamente
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(password_bytes, salt)
+        return hashed.decode("utf-8")
 
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """
@@ -69,7 +73,9 @@ class PasswordHandler:
         password_bytes = plain_password.encode("utf-8")
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
-        return self.pwd_context.verify(password_bytes.decode("utf-8"), hashed_password)
+        # Usar bcrypt directamente
+        hashed_bytes = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 class JWTTokenManager(BaseTokenManager):
@@ -220,9 +226,9 @@ class JWTTokenManager(BaseTokenManager):
             )
 
         except jwt.ExpiredSignatureError:
-            raise InvalidTokenError("Token has expired")
+            raise InvalidTokenError("Token has expired") from None
         except jwt.InvalidTokenError as e:
-            raise InvalidTokenError(f"Invalid token: {str(e)}")
+            raise InvalidTokenError(f"Invalid token: {str(e)}") from e
 
     def verify_refresh_token(self, token: str) -> str:
         """
@@ -254,12 +260,12 @@ class JWTTokenManager(BaseTokenManager):
             if payload.get("type") != "refresh":
                 raise InvalidTokenError("Invalid token type")
 
-            return payload["user_id"]
+            return str(payload["user_id"])
 
         except jwt.ExpiredSignatureError:
-            raise InvalidTokenError("Refresh token has expired")
+            raise InvalidTokenError("Refresh token has expired") from None
         except jwt.InvalidTokenError as e:
-            raise InvalidTokenError(f"Invalid refresh token: {str(e)}")
+            raise InvalidTokenError(f"Invalid refresh token: {str(e)}") from e
 
     async def revoke_token(self, token: str) -> bool:
         """
@@ -493,6 +499,7 @@ class JWTAuthProvider(BaseAuthProvider):
             Usuario si existe, None si no se encuentra.
         """
         try:
-            return await self.user_repository.get_by_id(user_id)
+            result = await self.user_repository.get_by_id(user_id)
+            return result if result is not None else None
         except Exception:
             return None

@@ -42,8 +42,14 @@ class TurboMigrator:
             original_cwd = Path.cwd()
             try:
                 import os
+                import shutil
 
                 os.chdir(self.migrations_dir.parent)
+
+                # Si el directorio migrations ya existe, eliminarlo
+                if self.migrations_dir.exists():
+                    shutil.rmtree(self.migrations_dir)
+
                 self._run_alembic_command(["init", str(self.migrations_dir)])
             finally:
                 os.chdir(original_cwd)

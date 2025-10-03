@@ -1,7 +1,10 @@
 """Middleware de seguridad para FastAPI."""
 
-from typing import Callable
-from fastapi import Request, Response
+from collections.abc import Callable
+from typing import Any
+
+from fastapi import Request
+from fastapi import Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from .interfaces import BaseAuthProvider
@@ -26,7 +29,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: Any,
         auth_provider: BaseAuthProvider,
         add_security_headers: bool = True,
     ) -> None:
@@ -46,7 +49,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         self.auth_provider = auth_provider
         self.add_security_headers = add_security_headers
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """
         Procesar la request y añadir headers de seguridad a la respuesta.
 
@@ -64,12 +67,12 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         """
         # Procesar la request
         response = await call_next(request)
-        
+
         # Añadir headers de seguridad si está habilitado
         if self.add_security_headers:
             self._add_security_headers(response)
-        
-        return response
+
+        return response  # type: ignore[no-any-return]
 
     def _add_security_headers(self, response: Response) -> None:
         """
@@ -82,19 +85,19 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         """
         # Prevenir MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
-        
+
         # Prevenir carga en frames (clickjacking)
         response.headers["X-Frame-Options"] = "DENY"
-        
+
         # Habilitar protección XSS del navegador
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        
+
         # Forzar HTTPS en producción (configurable)
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        
+
         # Controlar referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        
+
         # Content Security Policy básica
         response.headers["Content-Security-Policy"] = "default-src 'self'"
 
@@ -119,10 +122,10 @@ class CORSSecurityMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: Any,
         allowed_origins: list[str],
-        allowed_methods: list[str] = None,
-        allowed_headers: list[str] = None,
+        allowed_methods: list[str] | None = None,
+        allowed_headers: list[str] | None = None,
         allow_credentials: bool = False,
     ) -> None:
         """
@@ -153,7 +156,7 @@ class CORSSecurityMiddleware(BaseHTTPMiddleware):
         ]
         self.allow_credentials = allow_credentials
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """
         Procesar request CORS.
 
@@ -170,22 +173,22 @@ class CORSSecurityMiddleware(BaseHTTPMiddleware):
             Respuesta con headers CORS.
         """
         origin = request.headers.get("origin")
-        
+
         # Manejar preflight requests
         if request.method == "OPTIONS":
             response = Response()
         else:
             response = await call_next(request)
-        
+
         # Añadir headers CORS si el origen está permitido
         if origin and self._is_origin_allowed(origin):
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Methods"] = ", ".join(self.allowed_methods)
             response.headers["Access-Control-Allow-Headers"] = ", ".join(self.allowed_headers)
-            
+
             if self.allow_credentials:
                 response.headers["Access-Control-Allow-Credentials"] = "true"
-        
+
         return response
 
     def _is_origin_allowed(self, origin: str) -> bool:
@@ -205,7 +208,7 @@ class CORSSecurityMiddleware(BaseHTTPMiddleware):
         # Permitir localhost en desarrollo
         if "localhost" in origin or "127.0.0.1" in origin:
             return True
-        
+
         return origin in self.allowed_origins
 
 
@@ -223,7 +226,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: Any,
         requests_per_minute: int = 60,
     ) -> None:
         """
@@ -238,9 +241,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
-        self.request_counts: dict[str, list] = {}
+        self.request_counts: dict[str, list[float]] = {}
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable[..., Any]) -> Response:
         """
         Aplicar rate limiting.
 
@@ -257,38 +260,40 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             Respuesta o error 429 si excede el límite.
         """
         import time
-        from fastapi import HTTPException, status
-        
+
+        from fastapi import HTTPException
+        from fastapi import status
+
         # Obtener IP del cliente
         client_ip = request.client.host if request.client else "unknown"
         current_time = time.time()
-        
+
         # Limpiar requests antiguos (más de 1 minuto)
         if client_ip in self.request_counts:
             self.request_counts[client_ip] = [
-                req_time for req_time in self.request_counts[client_ip]
+                req_time
+                for req_time in self.request_counts[client_ip]
                 if current_time - req_time < 60
             ]
         else:
             self.request_counts[client_ip] = []
-        
+
         # Verificar límite
         if len(self.request_counts[client_ip]) >= self.requests_per_minute:
             raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Rate limit exceeded"
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
             )
-        
+
         # Registrar request actual
         self.request_counts[client_ip].append(current_time)
-        
-        return await call_next(request)
+
+        return await call_next(request)  # type: ignore[no-any-return]
 
 
 def setup_security_middleware(
-    app,
+    app: Any,
     auth_provider: BaseAuthProvider,
-    cors_origins: list[str] = None,
+    cors_origins: list[str] | None = None,
     rate_limit_rpm: int = 60,
     enable_security_headers: bool = True,
 ) -> None:
@@ -312,10 +317,10 @@ def setup_security_middleware(
     --------
     >>> from fastapi import FastAPI
     >>> from turboapi.security.jwt import JWTAuthProvider
-    >>> 
+    >>>
     >>> app = FastAPI()
     >>> auth_provider = JWTAuthProvider(...)
-    >>> 
+    >>>
     >>> setup_security_middleware(
     ...     app,
     ...     auth_provider,
@@ -326,7 +331,7 @@ def setup_security_middleware(
     # Añadir middleware de rate limiting (primero)
     if rate_limit_rpm > 0:
         app.add_middleware(RateLimitMiddleware, requests_per_minute=rate_limit_rpm)
-    
+
     # Añadir middleware de CORS si se especifican orígenes
     if cors_origins:
         app.add_middleware(
@@ -334,7 +339,7 @@ def setup_security_middleware(
             allowed_origins=cors_origins,
             allow_credentials=True,
         )
-    
+
     # Añadir middleware de seguridad principal (último)
     app.add_middleware(
         SecurityMiddleware,

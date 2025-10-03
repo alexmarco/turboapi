@@ -305,13 +305,14 @@ class StructuredLogger:
 
 **2. Métricas y Monitoreo (`src/turboapi/observability/metrics.py`)**
 
-- **PrometheusCollector**: Métricas compatibles con Prometheus
+- **OpenTelemetryCollector**: Sistema unificado basado en OpenTelemetry
+- **PrometheusExporter**: Exportador automático a Prometheus para compatibilidad
 - **MetricsRegistry**: Registro automático de métricas de aplicación
 - **CustomMetrics**: API para métricas personalizadas del usuario
 
 **3. Trazabilidad Distribuida (`src/turboapi/observability/tracing.py`)**
 
-- **OpenTelemetryIntegration**: Integración completa con OpenTelemetry
+- **OpenTelemetryIntegration**: Integración completa con OpenTelemetry (unificado con métricas)
 - **TraceManager**: Gestión automática de traces y spans
 - **ContextPropagation**: Propagación de contexto entre servicios
 
@@ -351,10 +352,11 @@ log_level = "INFO"
 log_format = "json"  # json, text
 log_destination = "stdout"  # stdout, file, syslog
 
-# Metrics
+# Metrics (OpenTelemetry-based)
 metrics_enabled = true
 metrics_endpoint = "/metrics"
-prometheus_registry = true
+prometheus_export = true  # Export to Prometheus format
+otel_service_name = "turboapi-app"
 
 # Tracing
 tracing_enabled = true
@@ -364,12 +366,32 @@ trace_sample_rate = 0.1
 # Health Checks
 health_endpoint = "/health"
 health_checks_interval = 30
+
+# APM (OpenTelemetry base + addons)
+apm_enabled = true
+service_name = "turboapi-app"
+environment = "production"
+version = "1.0.0"
+sample_rate = 0.1
+
+# APM Addons (opcionales)
+[tool.turboapi.observability.apm.newrelic]
+enabled = true
+license_key = "${NEW_RELIC_LICENSE_KEY}"
+app_name = "turboapi-app"
+
+[tool.turboapi.observability.apm.datadog]
+enabled = true
+api_key = "${DATADOG_API_KEY}"
+service = "turboapi-app"
+env = "production"
 ```
 
 #### Integración con Herramientas Externas
 
-**1. Prometheus + Grafana**
+**1. OpenTelemetry + Prometheus + Grafana**
 
+- Sistema unificado OpenTelemetry con exportación automática a Prometheus
 - Dashboards predefinidos para métricas del framework
 - Alertas automáticas para errores críticos
 - Visualización de performance trends
@@ -380,11 +402,38 @@ health_checks_interval = 30
 - Índices optimizados para búsquedas de logs
 - Dashboards de Kibana predefinidos
 
-**3. APM Tools**
+**3. APM Tools (como Addons)**
 
-- New Relic integration
-- DataDog integration
-- Elastic APM integration
+- **Core APM**: OpenTelemetry (siempre disponible)
+- **New Relic Addon**: `addons/apm/newrelic.py` - Integración con New Relic
+- **DataDog Addon**: `addons/apm/datadog.py` - Integración con DataDog  
+- **Elastic APM Addon**: `addons/apm/elastic.py` - Integración con Elastic APM
+
+#### Sistema de Addons
+
+El framework implementa un sistema de addons que permite extender funcionalidades sin modificar el core:
+
+**Estructura de Addons:**
+
+```
+addons/
+├── __init__.py              # Infraestructura de addons
+├── apm/                     # Addons APM
+│   ├── __init__.py
+│   ├── base.py              # Clase base para addons APM
+│   ├── newrelic.py          # NewRelicAPMAddon
+│   ├── datadog.py           # DataDogAPMAddon
+│   └── elastic.py           # ElasticAPMAddon
+└── ...
+```
+
+**Características del Sistema de Addons:**
+
+- **Separación del Core**: Addons viven fuera de `/src`
+- **Carga Dinámica**: Se cargan automáticamente basado en configuración
+- **Dependencias Opcionales**: Solo se instalan si se usan
+- **Patrón Starter**: Usan el mismo patrón que otros starters del framework
+- **Configuración Unificada**: Se configuran desde `pyproject.toml`
 
 ---
 
@@ -502,11 +551,13 @@ jobs:
 - ✅ **Sistema de Tareas**: Queue de tareas con decoradores
 - ✅ **Sistema de Caché**: Implementación completa sync/async/híbrido
 - ✅ **CLI**: Herramientas de generación y gestión
+- ✅ **Sistema de Observabilidad**: Logging, métricas, tracing, health checks
+- ✅ **Sistema de Addons**: Infraestructura para extensiones modulares
 
 ### 🎯 Funcionalidades Diseñadas (REQ 4.x, 5.x, 6.x - Listas para Implementación)
 
 **✅ Sistema de Seguridad:** Arquitectura completa definida, interfaces especificadas, configuración documentada
-**✅ Sistema de Observabilidad:** Stack completo diseñado, integración OpenTelemetry planificada
+**✅ Sistema de Observabilidad:** Stack completo implementado con OpenTelemetry + addons APM
 **✅ Herramientas DevTools:** Hot reload, documentación automática, integración ecosistema
 
 ### 🚀 Próximas Épicas de Optimización

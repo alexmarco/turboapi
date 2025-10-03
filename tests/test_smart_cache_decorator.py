@@ -2,7 +2,6 @@
 
 import asyncio
 from datetime import timedelta
-from typing import Any
 
 import pytest
 
@@ -88,6 +87,7 @@ class TestSmartCacheDecorator:
 
         # Esperar a que expire
         import time
+
         time.sleep(0.015)
 
         # Tercera llamada después de expirar
